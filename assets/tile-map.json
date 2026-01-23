@@ -1,0 +1,113 @@
+{
+  "tiles": {
+    "tile-1": {
+      "category": "Edges",
+      "subcategory": "left",
+      "reason": ""
+    },
+    "tile-2": {
+      "category": "Solid Ground",
+      "subcategory": null,
+      "reason": ""
+    },
+    "tile-3": {
+      "category": "Edges",
+      "subcategory": "right",
+      "reason": ""
+    },
+    "tile-4": {
+      "category": "Edges",
+      "subcategory": "left",
+      "reason": ""
+    },
+    "tile-5": {
+      "category": "Solid Ground",
+      "subcategory": null,
+      "reason": ""
+    },
+    "tile-6": {
+      "category": "Edges",
+      "subcategory": "left",
+      "reason": ""
+    },
+    "tile-7": {
+      "category": "Solid Ground",
+      "subcategory": null,
+      "reason": ""
+    },
+    "tile-8": {
+      "category": "Solid Ground",
+      "subcategory": null,
+      "reason": ""
+    },
+    "tile-9": {
+      "category": "Edges",
+      "subcategory": "top",
+      "reason": ""
+    },
+    "tile-10": {
+      "category": "Solid Ground",
+      "subcategory": null,
+      "reason": ""
+    },
+    "tile-11": {
+      "category": "Solid Ground",
+      "subcategory": null,
+      "reason": ""
+    },
+    "tile-12": {
+      "category": "Edges",
+      "subcategory": "bottom",
+      "reason": ""
+    },
+    "tile-13": {
+      "category": "Corners",
+      "subcategory": "bottom-right",
+      "reason": ""
+    },
+    "tile-14": {
+      "category": "Corners",
+      "subcategory": "bottom-left",
+      "reason": ""
+    },
+    "tile-15": {
+      "category": "Edges",
+      "subcategory": "bottom",
+      "reason": ""
+    },
+    "tile-16": {
+      "category": "Corners",
+      "subcategory": "bottom-right",
+      "reason": ""
+    },
+    "bone-1": {
+      "category": "Background/Decoration",
+      "subcategory": null,
+      "reason": ""
+    },
+    "bone-2": {
+      "category": "Background/Decoration",
+      "subcategory": null,
+      "reason": ""
+    },
+    "bone-3": {
+      "category": "Background/Decoration",
+      "subcategory": null,
+      "reason": ""
+    },
+    "bone-4": {
+      "category": "Background/Decoration",
+      "subcategory": null,
+      "reason": ""
+    }
+  },
+  "summary": {
+    "total_tiles": 20,
+    "category_counts": {
+      "Edges": 7,
+      "Solid Ground": 6,
+      "Corners": 3,
+      "Background/Decoration": 4
+    }
+  }
+}

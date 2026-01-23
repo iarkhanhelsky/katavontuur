@@ -216,6 +216,7 @@
         let tileGrid = new Map(); // Track placed tiles: key = "x,y" -> { tileKey, sprite }
         let allTileKeys = []; // All available tile keys
         let compatibilityMatrixLoaded = false;
+        let tileMap = null; // Tile categorization map
         
         // Cat animation configuration - switch between 'cat' and 'cat2'
         const CAT_TYPE = 'cat2'; // Change this to 'cat' or 'cat2' to switch animations
@@ -245,9 +246,6 @@
             }
         };
         
-        // Store bounding boxes for each animation
-        let animationBoundingBoxes = {};
-        
         // World dimensions
         const CANVAS_WIDTH = 800;
         const CANVAS_HEIGHT = 600;
@@ -257,140 +255,8 @@
         const WORLD_HEIGHT = CANVAS_HEIGHT; // World height matches canvas
         const TILE_SIZE = 128 * BG_SCALE; // Scale tiles to match world
 
-        // Calculate bounding box for a sprite frame (detects actual content, not transparent pixels)
-        function calculateBoundingBox(scene, textureKey, frameIndex = 0) {
-            try {
-                const texture = scene.textures.get(textureKey);
-                if (!texture) {
-                    console.warn(`Texture ${textureKey} not found for bounding box calculation`);
-                    return null;
-                }
-                
-                const frame = texture.get(frameIndex);
-                if (!frame) {
-                    console.warn(`Frame ${frameIndex} not found in texture ${textureKey}`);
-                    return null;
-                }
-                
-                // Get the source image
-                const source = texture.source[0];
-                if (!source || !source.image) {
-                    console.warn(`Source image not available for texture ${textureKey}`);
-                    // Fallback: return full frame size
-                    return {
-                        x: 0,
-                        y: 0,
-                        width: frame.width,
-                        height: frame.height
-                    };
-                }
-                
-                // Create a temporary canvas to analyze the specific frame
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = frame.width;
-                tempCanvas.height = frame.height;
-                const ctx = tempCanvas.getContext('2d');
-                
-                // Draw the frame to temp canvas
-                // Frame coordinates in the source image
-                const sx = frame.cutX;
-                const sy = frame.cutY;
-                const sw = frame.cutWidth;
-                const sh = frame.cutHeight;
-                
-                ctx.drawImage(
-                    source.image,
-                    sx, sy, sw, sh,
-                    0, 0, frame.width, frame.height
-                );
-                
-                // Get image data
-                const imageData = ctx.getImageData(0, 0, frame.width, frame.height);
-                const data = imageData.data;
-                
-                // Find bounding box (non-transparent pixels)
-                let minX = frame.width;
-                let minY = frame.height;
-                let maxX = 0;
-                let maxY = 0;
-                let foundPixel = false;
-                
-                for (let y = 0; y < frame.height; y++) {
-                    for (let x = 0; x < frame.width; x++) {
-                        const idx = (y * frame.width + x) * 4;
-                        const alpha = data[idx + 3];
-                        if (alpha > 0) { // Non-transparent pixel
-                            foundPixel = true;
-                            minX = Math.min(minX, x);
-                            minY = Math.min(minY, y);
-                            maxX = Math.max(maxX, x);
-                            maxY = Math.max(maxY, y);
-                        }
-                    }
-                }
-                
-                // If no content found, return full frame size
-                if (!foundPixel || minX > maxX || minY > maxY) {
-                    return {
-                        x: 0,
-                        y: 0,
-                        width: frame.width,
-                        height: frame.height
-                    };
-                }
-                
-                return {
-                    x: minX,
-                    y: minY,
-                    width: maxX - minX + 1,
-                    height: maxY - minY + 1
-                };
-            } catch (error) {
-                console.error(`Error calculating bounding box for ${textureKey}:`, error);
-                // Fallback: return full frame size
-                const texture = scene.textures.get(textureKey);
-                if (texture) {
-                    const frame = texture.get(frameIndex);
-                    if (frame) {
-                        return {
-                            x: 0,
-                            y: 0,
-                            width: frame.width,
-                            height: frame.height
-                        };
-                    }
-                }
-                return null;
-            }
-        }
-        
-        // Calculate bounding boxes for all frames in an animation
-        function calculateAnimationBoundingBoxes(scene, textureKey, frameCount) {
-            const boxes = [];
-            for (let i = 0; i < frameCount; i++) {
-                const box = calculateBoundingBox(scene, textureKey, i);
-                if (box) {
-                    boxes.push(box);
-                }
-            }
-            
-            // Find the union of all bounding boxes (largest box that contains all frames)
-            if (boxes.length === 0) return null;
-            
-            let unionMinX = Math.min(...boxes.map(b => b.x));
-            let unionMinY = Math.min(...boxes.map(b => b.y));
-            let unionMaxX = Math.max(...boxes.map(b => b.x + b.width));
-            let unionMaxY = Math.max(...boxes.map(b => b.y + b.height));
-            
-            return {
-                x: unionMinX,
-                y: unionMinY,
-                width: unionMaxX - unionMinX,
-                height: unionMaxY - unionMinY
-            };
-        }
-        
         // Update cat body size based on current animation
+        // Uses sprite frame size as bounding box
         function updateCatBodySize(scene, animationKey) {
             if (!cat || !cat.body) return;
             
@@ -399,29 +265,11 @@
             const frameWidth = config.frameWidth * scale;
             const frameHeight = config.frameHeight * scale;
             
-            // Get bounding box for this animation
-            const boundingBox = animationBoundingBoxes[animationKey];
-            if (!boundingBox) {
-                // Fallback to frame size if bounding box not calculated
-                cat.body.setSize(frameWidth, frameHeight);
-                cat.body.setOffset(0, 0);
-                cat.body.refreshBody();
-                return;
-            }
-            
-            // Use bounding box for width (to prevent horizontal floating)
-            // But ensure body always extends to bottom of frame for ground collision
-            const bodyWidth = Math.max(boundingBox.width * scale, frameWidth * 0.6);
-            // Body height should always extend to bottom of frame
-            const bodyHeight = frameHeight;
-            
-            // Calculate offset: use bounding box X offset, but Y should be 0 so body starts at top
-            const offsetX = boundingBox.x * scale;
-            const offsetY = 0; // Always start at top of frame
-            
-            cat.body.setSize(bodyWidth, bodyHeight);
-            cat.body.setOffset(offsetX, offsetY);
-            cat.body.refreshBody(); // Critical: refresh body to apply changes
+            // Use full frame size as bounding box
+            cat.body.setSize(frameWidth, frameHeight);
+            cat.body.setOffset(0, 0);
+            // Force body update to ensure collision works
+            cat.body.updateFromGameObject();
         }
         
         // Load cat animations based on CAT_TYPE
@@ -442,7 +290,6 @@
         // Create cat animations based on CAT_TYPE
         function createCatAnimations(scene) {
             const config = CAT_CONFIGS[CAT_TYPE];
-            animationBoundingBoxes = {};
             
             // Helper function to check if textures are ready
             const checkAndCreateAnimations = () => {
@@ -462,7 +309,7 @@
                     return;
                 }
                 
-                // All textures are ready, create animations and calculate bounding boxes
+                // All textures are ready, create animations
                 for (const [animKey, animConfig] of Object.entries(config.animations)) {
                     const textureKey = `cat-${animKey}`;
                     const texture = scene.textures.get(textureKey);
@@ -472,7 +319,7 @@
                         continue;
                     }
                     
-                    // Create animation first
+                    // Create animation
                     if (texture.frameTotal >= animConfig.frames) {
                         scene.anims.create({
                             key: animKey,
@@ -483,17 +330,6 @@
                             frameRate: animConfig.frameRate,
                             repeat: -1 // loop forever
                         });
-                    }
-                    
-                    // Calculate bounding boxes for this animation (may fail, that's OK)
-                    try {
-                        const boundingBox = calculateAnimationBoundingBoxes(scene, textureKey, animConfig.frames);
-                        if (boundingBox) {
-                            animationBoundingBoxes[animKey] = boundingBox;
-                            console.log(`Bounding box for ${animKey}:`, boundingBox);
-                        }
-                    } catch (error) {
-                        console.warn(`Failed to calculate bounding box for ${animKey}:`, error);
                     }
                 }
                 
@@ -546,6 +382,7 @@
             // Load tile compatibility matrix (if it exists)
             // Note: Phaser will fail silently if file doesn't exist, which is fine
             this.load.json('tile-compatibility-matrix', 'assets/tile-compatibility-matrix.json');
+            this.load.json('tile-map', 'assets/tile-map.json');
         }
 
         // Create function - sets up the game scene
@@ -626,8 +463,13 @@
             // Initialize world generation - create initial platforms (MUST happen before cat creation)
             lastGeneratedX = 0;
             console.log('Generating initial world chunk...');
+            console.log(`TILE_SIZE: ${TILE_SIZE}, BG_SCALE: ${BG_SCALE}, WORLD_HEIGHT: ${WORLD_HEIGHT}`);
             generateWorldChunk(this, 0, CANVAS_WIDTH * 2);
             console.log(`World generation complete. Platforms created: ${platforms.children.entries.length}`);
+            if (platforms.children.entries.length > 0) {
+                const firstTile = platforms.children.entries[0];
+                console.log(`First tile: position (${firstTile.x}, ${firstTile.y}), body: (${firstTile.body ? `${firstTile.body.width}x${firstTile.body.height}` : 'none'})`);
+            }
             
             // Check if cat textures loaded successfully before creating cat
             const idleTextureKey = `cat-idle`;
@@ -635,12 +477,17 @@
                 // Create cat sprite using idle sprite sheet as base
                 // Position cat on ground level
                 // Ground tile center is at WORLD_HEIGHT - TILE_SIZE/2
-                // Cat's feet should be on top of the tile, so cat Y = ground tile top - half cat height
+                // Ground tile top is at WORLD_HEIGHT - TILE_SIZE
+                // Cat's feet should be on top of the tile
                 const config = CAT_CONFIGS[CAT_TYPE];
                 const groundTileCenterY = WORLD_HEIGHT - TILE_SIZE / 2;
-                const groundTileTop = groundTileCenterY - TILE_SIZE / 2;
+                const groundTileTop = WORLD_HEIGHT - TILE_SIZE;
                 const catHeight = config.frameHeight * config.scale; // Cat sprite height * scale
+                // Position cat so its bottom (feet) align with ground tile top
+                // Sprite origin is at center (0.5, 0.5), so cat.y is the center of the sprite
+                // To align bottom with groundTileTop: cat.y = groundTileTop - catHeight/2
                 const catStartY = groundTileTop - catHeight / 2;
+                
                 cat = this.physics.add.sprite(100, catStartY, 'cat-idle');
                 
                 // Scale cat based on configuration
@@ -651,13 +498,49 @@
                 cat.setBounce(0);
                 cat.body.setGravityY(300);
                 
-                // Set initial body size (will be updated when bounding boxes are calculated)
-                cat.body.setSize(config.frameWidth * config.scale, config.frameHeight * config.scale);
+                // Set initial body size - use the actual display size after scaling
+                // In Phaser, body size is in world units, not scaled units
+                // So we need to multiply frame size by scale
+                const initialBodyWidth = config.frameWidth * config.scale;
+                const initialBodyHeight = config.frameHeight * config.scale;
+                
+                // Set body size and ensure it's centered
+                cat.body.setSize(initialBodyWidth, initialBodyHeight);
                 cat.body.setOffset(0, 0);
-                cat.body.refreshBody(); // Refresh to apply initial body size
+                
+                // Ensure body is active and collides properly
+                cat.body.setImmovable(false);
+                cat.body.setCollideWorldBounds(false);
+                
+                // Force body update
+                cat.body.updateFromGameObject();
+                
+                // Debug: Log body setup
+                console.log(`Cat created:`);
+                console.log(`  Position: (${cat.x}, ${cat.y})`);
+                console.log(`  Body size: ${initialBodyWidth}x${initialBodyHeight}`);
+                console.log(`  Body position: (${cat.body.x}, ${cat.body.y})`);
+                console.log(`  Body bounds: x=${cat.body.x}, y=${cat.body.y}, w=${cat.body.width}, h=${cat.body.height}`);
+                console.log(`  Ground tile top: ${groundTileTop}, cat bottom should be at: ${cat.y + catHeight/2}`);
                 
                 // Set collision between cat and platforms
-                this.physics.add.collider(cat, platforms);
+                // Use a callback to ensure collision is working
+                this.physics.add.collider(cat, platforms, null, null, this);
+                console.log(`Collision set up between cat and ${platforms.children.entries.length} platforms`);
+                
+                // Verify collision is working by checking if cat can detect platforms
+                this.time.delayedCall(100, () => {
+                    if (cat && cat.body) {
+                        console.log(`Cat collision check - body active: ${cat.body.enable}, touching down: ${cat.body.touching.down}`);
+                        console.log(`Cat body: x=${cat.body.x.toFixed(1)}, y=${cat.body.y.toFixed(1)}, w=${cat.body.width.toFixed(1)}, h=${cat.body.height.toFixed(1)}`);
+                        if (platforms.children.entries.length > 0) {
+                            const firstPlatform = platforms.children.entries[0];
+                            if (firstPlatform.body) {
+                                console.log(`First platform body: x=${firstPlatform.body.x.toFixed(1)}, y=${firstPlatform.body.y.toFixed(1)}, w=${firstPlatform.body.width.toFixed(1)}, h=${firstPlatform.body.height.toFixed(1)}`);
+                            }
+                        }
+                    }
+                });
                 
                 // Set up overlap detection for coin collection
                 this.physics.add.overlap(cat, coins, collectCoin, null, this);
@@ -727,6 +610,20 @@
                 }
             } catch (e) {
                 console.log('Compatibility matrix not found, will generate on first use');
+            }
+            
+            // Load tile categorization map
+            try {
+                if (scene.cache.json.exists('tile-map')) {
+                    const mapData = scene.cache.json.get('tile-map');
+                    if (mapData && mapData.tiles) {
+                        tileMap = mapData.tiles;
+                        console.log('Loaded tile categorization map');
+                        console.log(`Categories: ${Object.keys(mapData.summary.category_counts).join(', ')}`);
+                    }
+                }
+            } catch (e) {
+                console.log('Tile map not found, categorization will not be used');
             }
             
             // If matrix not loaded, generate it asynchronously
@@ -822,6 +719,80 @@
                 }
             }
             
+            // Use tile categorization to prefer appropriate tile types
+            if (tileMap && candidates.length > 0) {
+                // Determine what type of tile we need based on neighbors
+                const hasLeft = !!leftTile;
+                const hasRight = !!rightTile;
+                const hasTop = !isGround && !!getTileAtGrid(gridX, gridY - 1);
+                const hasBottom = !isGround && !!getTileAtGrid(gridX, gridY + 1);
+                
+                // Filter candidates by category preference
+                let preferredCandidates = [];
+                
+                // Check for corner positions
+                if ((hasLeft && hasTop) || (hasLeft && hasBottom) || (hasRight && hasTop) || (hasRight && hasBottom)) {
+                    // Corner position - prefer corner tiles
+                    const cornerCandidates = candidates.filter(key => {
+                        const tileData = tileMap[key];
+                        return tileData && tileData.category === 'Corners';
+                    });
+                    if (cornerCandidates.length > 0) {
+                        preferredCandidates = cornerCandidates;
+                    }
+                }
+                
+                // Check for edge positions (only one neighbor in a direction)
+                if (preferredCandidates.length === 0) {
+                    const isLeftEdge = !hasLeft && hasRight;
+                    const isRightEdge = hasLeft && !hasRight;
+                    const isTopEdge = !hasTop && hasBottom;
+                    const isBottomEdge = hasTop && !hasBottom;
+                    
+                    if (isLeftEdge || isRightEdge || isTopEdge || isBottomEdge) {
+                        // Edge position - prefer edge tiles
+                        const edgeCandidates = candidates.filter(key => {
+                            const tileData = tileMap[key];
+                            if (!tileData || tileData.category !== 'Edges') return false;
+                            
+                            // Match subcategory if possible
+                            if (isLeftEdge && tileData.subcategory === 'left') return true;
+                            if (isRightEdge && tileData.subcategory === 'right') return true;
+                            if (isTopEdge && tileData.subcategory === 'top') return true;
+                            if (isBottomEdge && tileData.subcategory === 'bottom') return true;
+                            
+                            // Accept any edge tile if specific match not found
+                            return true;
+                        });
+                        if (edgeCandidates.length > 0) {
+                            preferredCandidates = edgeCandidates;
+                        }
+                    }
+                }
+                
+                // If not corner or edge, prefer solid ground tiles
+                if (preferredCandidates.length === 0) {
+                    const solidGroundCandidates = candidates.filter(key => {
+                        const tileData = tileMap[key];
+                        return tileData && tileData.category === 'Solid Ground';
+                    });
+                    if (solidGroundCandidates.length > 0) {
+                        preferredCandidates = solidGroundCandidates;
+                    }
+                }
+                
+                // Exclude background/decoration tiles from platform generation
+                candidates = candidates.filter(key => {
+                    const tileData = tileMap[key];
+                    return !tileData || tileData.category !== 'Background/Decoration';
+                });
+                
+                // Use preferred candidates if available, otherwise use all compatible candidates
+                if (preferredCandidates.length > 0) {
+                    candidates = preferredCandidates;
+                }
+            }
+            
             // If no candidates after filtering, use all tiles except bones (fallback)
             if (candidates.length === 0) {
                 candidates = allTileKeys.filter(key => !key.startsWith('bone-'));
@@ -856,14 +827,39 @@
                 // Get compatible tile based on adjacent tiles
                 const tileKey = getCompatibleTile(gridX, gridY, true);
                 
-                const tile = platforms.create(x + TILE_SIZE / 2, groundY, tileKey);
-                tile.setScale(BG_SCALE);
-                tile.setSize(TILE_SIZE / BG_SCALE, TILE_SIZE / BG_SCALE);
-                tile.refreshBody();
+                // Verify tile texture exists before creating
+                if (!scene.textures.exists(tileKey)) {
+                    console.error(`Tile texture ${tileKey} does not exist! Skipping tile at ${x}`);
+                    continue;
+                }
                 
-                // Track tile in grid
-                const gridKey = getGridKey(x + TILE_SIZE / 2, groundY);
-                tileGrid.set(gridKey, { tileKey: tileKey, sprite: tile, gridX: gridX, gridY: gridY });
+                try {
+                    const tile = platforms.create(x + TILE_SIZE / 2, groundY, tileKey);
+                    if (!tile) {
+                        console.error(`Failed to create tile ${tileKey} at position ${x + TILE_SIZE / 2}, ${groundY}`);
+                        continue;
+                    }
+                    tile.setScale(BG_SCALE);
+                    // For static bodies, body size should be in world units (not scaled)
+                    // Since tile is scaled by BG_SCALE, the body size should be the original tile size
+                    const tileBodyWidth = TILE_SIZE / BG_SCALE;
+                    const tileBodyHeight = TILE_SIZE / BG_SCALE;
+                    tile.setSize(tileBodyWidth, tileBodyHeight);
+                    
+                    // Ensure tile body is properly configured
+                    // Note: Static bodies are already immovable, no need to call setImmovable
+                    if (tile.body) {
+                        tile.body.updateFromGameObject();
+                    } else {
+                        console.error(`Tile ${tileKey} at ${x} has no physics body!`);
+                    }
+                
+                    // Track tile in grid
+                    const gridKey = getGridKey(x + TILE_SIZE / 2, groundY);
+                    tileGrid.set(gridKey, { tileKey: tileKey, sprite: tile, gridX: gridX, gridY: gridY });
+                } catch (error) {
+                    console.error(`Error creating tile ${tileKey} at ${x}:`, error);
+                }
                 
                 // Add bones on top of ground tiles with 25% probability
                 if (Math.random() < 0.25) {
@@ -914,7 +910,11 @@
                         const tile = platforms.create(tileX, tileY, tileKey);
                         tile.setScale(BG_SCALE);
                         tile.setSize(TILE_SIZE / BG_SCALE, TILE_SIZE / BG_SCALE);
-                        tile.refreshBody();
+                        // Ensure tile body is properly configured
+                        // Note: Static bodies are already immovable, no need to call setImmovable
+                        if (tile.body) {
+                            tile.body.updateFromGameObject();
+                        }
                         
                         // Track tile in grid
                         const gridKey = getGridKey(tileX, tileY);
