@@ -159,6 +159,11 @@ function create() {
     
     // Create cat animations (this will also calculate bounding boxes)
     createCatAnimations(this);
+
+    // Initial debug overlay
+    if (typeof drawWorldDebug === 'function') {
+        drawWorldDebug(this);
+    }
     
     // Coin animation: asset provides 4-step spin; play forward then backward (yoyo) for a full spin loop
     const coinTexture = this.textures.get('coin');
@@ -203,6 +208,11 @@ function update() {
     
     // Clean up old platforms and objects behind the cat
     cleanupWorld(catX);
+    
+    // Update debug overlay if enabled
+    if (typeof drawWorldDebug === 'function') {
+        drawWorldDebug(this);
+    }
         
     // Start idle animation on first update frame
     if (firstUpdate) {

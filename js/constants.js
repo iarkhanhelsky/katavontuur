@@ -45,6 +45,13 @@ const WORLD_WIDTH = 2000 * BG_SCALE; // Scaled world width
 const WORLD_HEIGHT = CANVAS_HEIGHT; // World height matches canvas
 const TILE_SIZE = 128 * BG_SCALE; // Scale tiles to match world
 
+// Platforming constraints expressed in grid tiles.
+// These are tuned to the cat's current jump strength and tile size so that
+// generated geometry is always traversable for the player.
+const MAX_UP_STEP_TILES = 2;   // Max tiles the cat can comfortably climb up
+const MAX_DOWN_STEP_TILES = 3; // Max tiles the cat can safely drop down
+const MAX_GAP_TILES = 2;       // Max horizontal gap (in tiles) the cat can clear
+
 // Layer depths for rendering order (bottom to top)
 const DEPTH_BACKGROUND = 0;
 const DEPTH_TILES = 10;
