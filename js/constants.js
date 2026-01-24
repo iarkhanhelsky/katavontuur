@@ -26,12 +26,12 @@ const CAT_CONFIGS = {
     'cat2': {
         frameWidth: 64,
         frameHeight: 64,
-        scale: 1.0,
+        scale: 1.5,
         animations: {
-            idle: { frames: 7, frameRate: 10, path: 'idle.png' },
-            walk: { frames: 7, frameRate: 10, path: 'walk.png' },
-            jump: { frames: 7, frameRate: 10, path: 'jump.png' },
-            run: { frames: 7, frameRate: 10, path: 'run.png' }
+            idle: { frames: 7, frameRate: 8, path: 'idle.png' },
+            walk: { frames: 7, frameRate: 24, path: 'walk.png' },
+            jump: { frames: 7, frameRate: 8, path: 'jump.png' },
+            run: { frames: 7, frameRate: 24, path: 'run.png' }
         }
     }
 };

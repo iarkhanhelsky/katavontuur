@@ -1,3 +1,4 @@
+
 // Main game setup and Phaser configuration
 
 // Global variables (shared across modules)
@@ -35,7 +36,7 @@ let tileAnalyzer;
 let tileConfig;
 let tileRules;
 let tileGrid = new Map(); // Track placed tiles: key = "x,y" -> { tileKey, sprite }
-let allTileKeys = []; // All available tile keys
+let allTileKeys = ['tile-4']; // All available tile keys
 let compatibilityMatrixLoaded = false;
 let tileMap = null; // Tile categorization map
 
@@ -47,7 +48,7 @@ function preload() {
     // Load coin sprite sheet
     this.load.spritesheet('coin', 'assets/animations/coin/coins.png', {
         frameWidth: 40,
-        frameHeight: 40
+        frameHeight: 44
     });
     
     // Load background image
@@ -159,14 +160,15 @@ function create() {
     // Create cat animations (this will also calculate bounding boxes)
     createCatAnimations(this);
     
-    // Coin animation: 4 frames (40x178 sprite sheet = 4 frames of 40x40)
+    // Coin animation: asset provides 4-step spin; play forward then backward (yoyo) for a full spin loop
     const coinTexture = this.textures.get('coin');
     if (coinTexture && coinTexture.frameTotal >= 4) {
         this.anims.create({
             key: 'coin-spin',
             frames: this.anims.generateFrameNumbers('coin', { start: 0, end: 3 }),
             frameRate: 10,
-            repeat: -1 // loop forever
+            repeat: -1, // loop forever
+            yoyo: true  // repeat steps in reverse for continuous spin
         });
     }
     

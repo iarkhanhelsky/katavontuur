@@ -3,49 +3,49 @@
 // Initialize tile adjacency system
 async function initializeTileSystem(scene) {
     // Build list of all tile keys (excluding bones - they are decorative overlays only)
-    allTileKeys = [];
-    for (let i = 1; i <= 16; i++) {
-        allTileKeys.push(`tile-${i}`);
-    }
-    // Bones are not included in allTileKeys - they are decorative overlays only
+    allTileKeys = ['tile-4'];
+    // for (let i = 1; i <= 16; i++) {
+    //     allTileKeys.push(`tile-${i}`);
+    // }
+    // // Bones are not included in allTileKeys - they are decorative overlays only
     
-    // Initialize tile system components
-    tileAnalyzer = new TileAnalyzer(scene);
-    tileConfig = new TileConfig();
-    tileRules = new TileRules(tileAnalyzer, tileConfig);
+    // // Initialize tile system components
+    // tileAnalyzer = new TileAnalyzer(scene);
+    // tileConfig = new TileConfig();
+    // tileRules = new TileRules(tileAnalyzer, tileConfig);
     
-    // Try to load pre-computed compatibility matrix
-    try {
-        if (scene.cache.json.exists('tile-compatibility-matrix')) {
-            const matrixData = scene.cache.json.get('tile-compatibility-matrix');
-            if (matrixData && Object.keys(matrixData).length > 0) {
-                tileRules.loadMatrix(matrixData);
-                compatibilityMatrixLoaded = true;
-                console.log('Loaded tile compatibility matrix from asset');
-            }
-        }
-    } catch (e) {
-        console.log('Compatibility matrix not found, will generate on first use');
-    }
+    // // Try to load pre-computed compatibility matrix
+    // try {
+    //     if (scene.cache.json.exists('tile-compatibility-matrix')) {
+    //         const matrixData = scene.cache.json.get('tile-compatibility-matrix');
+    //         if (matrixData && Object.keys(matrixData).length > 0) {
+    //             tileRules.loadMatrix(matrixData);
+    //             compatibilityMatrixLoaded = true;
+    //             console.log('Loaded tile compatibility matrix from asset');
+    //         }
+    //     }
+    // } catch (e) {
+    //     console.log('Compatibility matrix not found, will generate on first use');
+    // }
     
-    // Load tile categorization map
-    try {
-        if (scene.cache.json.exists('tile-map')) {
-            const mapData = scene.cache.json.get('tile-map');
-            if (mapData && mapData.tiles) {
-                tileMap = mapData.tiles;
-                console.log('Loaded tile categorization map');
-                console.log(`Categories: ${Object.keys(mapData.summary.category_counts).join(', ')}`);
-            }
-        }
-    } catch (e) {
-        console.log('Tile map not found, categorization will not be used');
-    }
+    // // Load tile categorization map
+    // try {
+    //     if (scene.cache.json.exists('tile-map')) {
+    //         const mapData = scene.cache.json.get('tile-map');
+    //         if (mapData && mapData.tiles) {
+    //             tileMap = mapData.tiles;
+    //             console.log('Loaded tile categorization map');
+    //             console.log(`Categories: ${Object.keys(mapData.summary.category_counts).join(', ')}`);
+    //         }
+    //     }
+    // } catch (e) {
+    //     console.log('Tile map not found, categorization will not be used');
+    // }
     
-    // If matrix not loaded, generate it asynchronously
-    if (!compatibilityMatrixLoaded) {
-        console.log('Compatibility matrix not found, will generate on first use');
-    }
+    // // If matrix not loaded, generate it asynchronously
+    // if (!compatibilityMatrixLoaded) {
+    //     console.log('Compatibility matrix not found, will generate on first use');
+    // }
 }
 
 
@@ -63,133 +63,8 @@ function getTileAtGrid(gridX, gridY) {
 }
 
 // Get compatible tile for a position
-function getCompatibleTile(gridX, gridY, isGround = true) {
-    // If matrix not ready, fall back to random
-    if (!compatibilityMatrixLoaded || !tileRules) {
-        return allTileKeys[Math.floor(Math.random() * allTileKeys.length)];
-    }
-    
-    // Filter out bones - they are decorative overlays, not platform tiles
-    let candidates = [...allTileKeys].filter(key => !key.startsWith('bone-'));
-    
-    // Check left neighbor (for horizontal adjacency)
-    const leftTile = getTileAtGrid(gridX - 1, gridY);
-    if (leftTile) {
-        const compatible = tileRules.getCompatibleTiles(leftTile.tileKey, 'right');
-        if (compatible.length > 0) {
-            candidates = candidates.filter(t => compatible.includes(t));
-        }
-    }
-    
-    // Check right neighbor (if already placed)
-    const rightTile = getTileAtGrid(gridX + 1, gridY);
-    if (rightTile) {
-        const compatible = tileRules.getCompatibleTiles(rightTile.tileKey, 'left');
-        if (compatible.length > 0) {
-            candidates = candidates.filter(t => compatible.includes(t));
-        }
-    }
-    
-    // For ground tiles, also check top/bottom if needed
-    if (!isGround) {
-        const topTile = getTileAtGrid(gridX, gridY - 1);
-        if (topTile) {
-            const compatible = tileRules.getCompatibleTiles(topTile.tileKey, 'bottom');
-            if (compatible.length > 0) {
-                candidates = candidates.filter(t => compatible.includes(t));
-            }
-        }
-        
-        const bottomTile = getTileAtGrid(gridX, gridY + 1);
-        if (bottomTile) {
-            const compatible = tileRules.getCompatibleTiles(bottomTile.tileKey, 'top');
-            if (compatible.length > 0) {
-                candidates = candidates.filter(t => compatible.includes(t));
-            }
-        }
-    }
-    
-    // Use tile categorization to prefer appropriate tile types
-    if (tileMap && candidates.length > 0) {
-        // Determine what type of tile we need based on neighbors
-        const hasLeft = !!leftTile;
-        const hasRight = !!rightTile;
-        const hasTop = !isGround && !!getTileAtGrid(gridX, gridY - 1);
-        const hasBottom = !isGround && !!getTileAtGrid(gridX, gridY + 1);
-        
-        // Filter candidates by category preference
-        let preferredCandidates = [];
-        
-        // Check for corner positions
-        if ((hasLeft && hasTop) || (hasLeft && hasBottom) || (hasRight && hasTop) || (hasRight && hasBottom)) {
-            // Corner position - prefer corner tiles
-            const cornerCandidates = candidates.filter(key => {
-                const tileData = tileMap[key];
-                return tileData && tileData.category === 'Corners';
-            });
-            if (cornerCandidates.length > 0) {
-                preferredCandidates = cornerCandidates;
-            }
-        }
-        
-        // Check for edge positions (only one neighbor in a direction)
-        if (preferredCandidates.length === 0) {
-            const isLeftEdge = !hasLeft && hasRight;
-            const isRightEdge = hasLeft && !hasRight;
-            const isTopEdge = !hasTop && hasBottom;
-            const isBottomEdge = hasTop && !hasBottom;
-            
-            if (isLeftEdge || isRightEdge || isTopEdge || isBottomEdge) {
-                // Edge position - prefer edge tiles
-                const edgeCandidates = candidates.filter(key => {
-                    const tileData = tileMap[key];
-                    if (!tileData || tileData.category !== 'Edges') return false;
-                    
-                    // Match subcategory if possible
-                    if (isLeftEdge && tileData.subcategory === 'left') return true;
-                    if (isRightEdge && tileData.subcategory === 'right') return true;
-                    if (isTopEdge && tileData.subcategory === 'top') return true;
-                    if (isBottomEdge && tileData.subcategory === 'bottom') return true;
-                    
-                    // Accept any edge tile if specific match not found
-                    return true;
-                });
-                if (edgeCandidates.length > 0) {
-                    preferredCandidates = edgeCandidates;
-                }
-            }
-        }
-        
-        // If not corner or edge, prefer solid ground tiles
-        if (preferredCandidates.length === 0) {
-            const solidGroundCandidates = candidates.filter(key => {
-                const tileData = tileMap[key];
-                return tileData && tileData.category === 'Solid Ground';
-            });
-            if (solidGroundCandidates.length > 0) {
-                preferredCandidates = solidGroundCandidates;
-            }
-        }
-        
-        // Exclude background/decoration tiles from platform generation
-        candidates = candidates.filter(key => {
-            const tileData = tileMap[key];
-            return !tileData || tileData.category !== 'Background/Decoration';
-        });
-        
-        // Use preferred candidates if available, otherwise use all compatible candidates
-        if (preferredCandidates.length > 0) {
-            candidates = preferredCandidates;
-        }
-    }
-    
-    // If no candidates after filtering, use all tiles except bones (fallback)
-    if (candidates.length === 0) {
-        candidates = allTileKeys.filter(key => !key.startsWith('bone-'));
-    }
-    
-    // Return random compatible tile
-    return candidates[Math.floor(Math.random() * candidates.length)];
+function getCompatibleTile() {
+    return `tile-2`;
 }
 
 // Coin collection handler
