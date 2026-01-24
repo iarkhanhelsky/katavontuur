@@ -1,0 +1,3 @@
+state = {
+    score: 0,
+}
