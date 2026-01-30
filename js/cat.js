@@ -249,7 +249,7 @@ function createCat(scene) {
     // Solve for sprite.y so that body bottom equals groundTileTop.
     const catStartY = groundTileTop + (frameHeight * scale) / 2 - (bodyOffsetY + bodyHeight) * scale;
     
-    cat = scene.physics.add.sprite(100, catStartY, 'cat-idle');
+    cat = scene.physics.add.sprite(CAT_START_X, catStartY, 'cat-idle');
     
     // Scale cat based on configuration
     cat.setScale(config.scale);

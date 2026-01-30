@@ -370,7 +370,12 @@ function generateColumnStates(startCol, endCol) {
     let prevSurfaceRow = getOrDefaultSurfaceRow(startCol - 1);
 
     while (col < endCol) {
-        const picked = pickPattern(prevSurfaceRow, col, endCol);
+        // Start zone: always use flat ground so the player spawn is clear of gaps/stairs
+        const inStartZone = col < START_ZONE_COLS;
+        const flatPattern = COLUMN_PATTERNS.find(p => p.name === 'flat');
+        const picked = inStartZone && flatPattern
+            ? { pattern: flatPattern, columns: flatPattern.build(prevSurfaceRow, col) }
+            : pickPattern(prevSurfaceRow, col, endCol);
         if (!picked) {
             break;
         }
@@ -503,6 +508,9 @@ function materializeColumns(scene, states, startCol, endCol) {
 // Decorations and coins based on column states
 function populateGroundDecorations(scene, startCol, endCol) {
     for (let col = startCol; col < endCol; col++) {
+        // Keep start zone clear of obstacles
+        if (col < START_ZONE_COLS) continue;
+
         const state = getColumnState(col);
         if (!state || state.surfaceRow === null || state.surfaceRow === undefined) continue;
 
@@ -525,6 +533,9 @@ function populateGroundDecorations(scene, startCol, endCol) {
 
 function populateCoins(scene, startCol, endCol) {
     for (let col = startCol; col < endCol; col++) {
+        // Keep start zone clear of objects
+        if (col < START_ZONE_COLS) continue;
+
         const state = getColumnState(col);
         if (!state || state.surfaceRow === null || state.surfaceRow === undefined) continue;
 

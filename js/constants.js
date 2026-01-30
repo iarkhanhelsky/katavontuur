@@ -8,6 +8,10 @@ const GENERATION_DISTANCE = 400; // Generate platforms this far ahead
 const CLEANUP_DISTANCE = 600; // Remove platforms this far behind
 const MAX_WORLD_WIDTH = 100000; // Very large world bounds
 
+// Starting position and safe zone (kept clear of obstacles and decorations)
+const CAT_START_X = 100; // World X where the cat spawns
+const START_ZONE_COLS = 5; // Number of columns (from 0) kept as flat ground with no obstacles
+
 // Cat animation configuration - switch between 'cat' and 'cat2'
 const CAT_TYPE = 'cat2'; // Change this to 'cat' or 'cat2' to switch animations
 
