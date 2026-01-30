@@ -31,6 +31,7 @@ let activeTouchId = null;
 
 // Infinite world generation variables
 let lastGeneratedX = 0;
+let rightmostGeneratedCol = 0; // Rightmost column we have ever generated (last remembered cell)
 
 // Tile adjacency system
 let tileAnalyzer;
@@ -90,6 +91,7 @@ function create() {
     
     // Reset global state variables
     lastGeneratedX = 0;
+    rightmostGeneratedCol = 0;
     tileGrid.clear();
     firstUpdate = true;
     currentAnimation = '';
@@ -135,7 +137,8 @@ function create() {
     
     
     // Initialize world generation - create initial platforms (MUST happen before cat creation)
-    lastGeneratedX = 0;
+    lastGeneratedX = CANVAS_WIDTH * 2;
+    rightmostGeneratedCol = Math.max(0, worldXToCol(CANVAS_WIDTH * 2) - 1);
     console.log('Generating initial world chunk...');
     console.log(`TILE_SIZE: ${TILE_SIZE}, BG_SCALE: ${BG_SCALE}, WORLD_HEIGHT: ${WORLD_HEIGHT}`);
     generateWorldChunk(this, 0, CANVAS_WIDTH * 2);
@@ -243,10 +246,29 @@ function update() {
         const newChunkEnd = lastGeneratedX + GENERATION_DISTANCE * 2;
         generateWorldChunk(this, newChunkStart, newChunkEnd);
         lastGeneratedX = newChunkEnd;
+        rightmostGeneratedCol = Math.max(rightmostGeneratedCol, worldXToCol(newChunkEnd) - 1);
     }
-    
-    // Clean up old platforms and objects behind the cat
-    cleanupWorld(catX);
+
+    // Clean up: keep only the last MAX_RETAINED_COLS columns
+    cleanupWorld(catX, rightmostGeneratedCol);
+
+    // Clamp cat to map bounds: from beginning of map (0) to last remembered cell
+    const minCatX = 0;
+    const maxCatX = (rightmostGeneratedCol + 1) * TILE_SIZE;
+    if (cat.x < minCatX) {
+        cat.x = minCatX;
+        if (cat.body) {
+            cat.body.x = minCatX;
+            if (cat.body.velocity.x < 0) cat.body.setVelocityX(0);
+        }
+    }
+    if (cat.x > maxCatX) {
+        cat.x = maxCatX;
+        if (cat.body) {
+            cat.body.x = maxCatX;
+            if (cat.body.velocity.x > 0) cat.body.setVelocityX(0);
+        }
+    }
     
     // Update debug overlay if enabled
     if (typeof drawWorldDebug === 'function') {

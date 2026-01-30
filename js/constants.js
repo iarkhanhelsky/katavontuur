@@ -5,7 +5,7 @@ const IDLE_DELAY = 150; // milliseconds
 
 // Infinite world generation constants
 const GENERATION_DISTANCE = 400; // Generate platforms this far ahead
-const CLEANUP_DISTANCE = 600; // Remove platforms this far behind
+const MAX_RETAINED_COLS = 1000; // Keep this many columns (cells) when cleaning up; only remove columns left of (rightmost - MAX_RETAINED_COLS)
 const MAX_WORLD_WIDTH = 100000; // Very large world bounds
 
 // Starting position and safe zone (kept clear of obstacles and decorations)

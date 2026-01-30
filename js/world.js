@@ -613,44 +613,43 @@ function generateWorldChunk(scene, startX, endX) {
     populateCoins(scene, startCol, endCol);
 }
 
-// Clean up old platforms and objects
-function cleanupWorld(catX) {
-    const cleanupX = catX - CLEANUP_DISTANCE;
-    const cleanupCol = worldXToCol(cleanupX);
-    
-    // Remove platforms behind the cat
+// Clean up old platforms and objects: keep only the last MAX_RETAINED_COLS columns.
+// rightmostCol = rightmost column we have ever generated (last remembered cell).
+function cleanupWorld(catX, rightmostCol) {
+    const minColToKeep = Math.max(0, rightmostCol - MAX_RETAINED_COLS);
+
+    // Remove platforms left of the retention window
     platforms.children.entries.forEach(tile => {
-        if (tile.x < cleanupX) {
-            // Remove from grid tracking
+        const col = worldXToCol(tile.x);
+        if (col < minColToKeep) {
             const gridKey = getGridKey(tile.x, tile.y);
             tileGrid.delete(gridKey);
-            
             platforms.remove(tile, true, true);
         }
     });
-    
-    // Remove decorative objects behind the cat
+
+    // Remove decorative objects left of the retention window
     decorativeObjects.children.entries.forEach(obj => {
-        if (obj.x < cleanupX) {
+        if (worldXToCol(obj.x) < minColToKeep) {
             decorativeObjects.remove(obj, true, true);
         }
     });
-    
-    // Remove coins behind the cat
+
+    // Remove coins left of the retention window
     coins.children.entries.forEach(coin => {
-        if (coin.x < cleanupX) {
+        if (worldXToCol(coin.x) < minColToKeep) {
             coins.remove(coin, true, true);
         }
     });
 
-    // Remove column state that is fully behind the cleanup column
+    // Remove column state left of the retention window
     surfaceByCol.forEach((row, col) => {
-        if (col < cleanupCol) {
+        if (col < minColToKeep) {
             surfaceByCol.delete(col);
         }
     });
     columnStates.forEach((state, col) => {
-        if (col < cleanupCol) {
+        if (col < minColToKeep) {
             columnStates.delete(col);
         }
     });
