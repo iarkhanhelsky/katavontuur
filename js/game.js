@@ -11,6 +11,7 @@ let decorativeObjects;
 let coins;
 let score = 0;
 let scoreText;
+let livesText;
 let currentAnimation = '';
 let firstUpdate = true;
 let gameScene = null; // Store reference to the scene for reloading
@@ -147,6 +148,15 @@ function create() {
     // Create cat
     createCat(this);
     
+    // Store initial safe block for respawn (and ensure lives in state)
+    if (cat && typeof state !== 'undefined') {
+        if (state.lives == null) state.lives = 9;
+        state.lastSafeBlock = {
+            col: worldXToCol(cat.x),
+            row: Math.floor((cat.body.y + cat.body.height) / TILE_SIZE)
+        };
+    }
+    
     // Configure camera to follow cat (if cat was created)
     this.cameras.main.setBounds(0, 0, MAX_WORLD_WIDTH, WORLD_HEIGHT);
     if (cat) {
@@ -154,8 +164,9 @@ function create() {
         this.cameras.main.setDeadzone(100, 100);
     }
     
-    // Create score display
+    // Create score display and lives display
     createScoreDisplay(this);
+    createLivesDisplay(this);
     
     // Create cat animations (this will also calculate bounding boxes)
     createCatAnimations(this);
@@ -195,6 +206,34 @@ function update() {
     // Ensure cat exists
     if (!cat) {
         return;
+    }
+    
+    // Fall detection: cat below world -> lose one life, respawn on last solid block (center-aligned)
+    const fallThreshold = WORLD_HEIGHT + 80;
+    if (typeof state !== 'undefined' && state.lives != null && cat.y > fallThreshold) {
+        state.lives--;
+        if (livesText) livesText.setText('Lives: ' + state.lives);
+        if (state.lives > 0 && state.lastSafeBlock && typeof getRespawnBlock === 'function') {
+            const block = getRespawnBlock(state.lastSafeBlock.col, state.lastSafeBlock.row);
+            if (block) {
+                const config = CAT_CONFIGS[CAT_TYPE];
+                const fh = config.frameHeight;
+                const scale = cat.scale;
+                const bodyOffsetY = cat.body.offset.y;
+                const bodyHeight = cat.body.height;
+                cat.x = block.centerX;
+                cat.y = block.topY + (fh * scale) / 2 - (bodyOffsetY + bodyHeight) * scale;
+                cat.body.setVelocity(0, 0);
+            }
+        }
+    }
+    
+    // Update last safe block when cat is grounded (solid block under feet)
+    if (cat.body.touching.down && typeof state !== 'undefined') {
+        state.lastSafeBlock = {
+            col: worldXToCol(cat.x),
+            row: Math.floor((cat.body.y + cat.body.height) / TILE_SIZE)
+        };
     }
         
     // Infinite world generation - generate ahead of cat

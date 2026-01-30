@@ -124,6 +124,34 @@ function getTileAtCell(col, row) {
     return tileGrid.get(getCellKey(col, row));
 }
 
+// Get respawn position on a solid block: at (col, row) if it exists, else nearest block near that column.
+// Returns { centerX, topY } in world coords, or null if no block found.
+function getRespawnBlock(col, row) {
+    const entry = getTileAtCell(col, row);
+    if (entry && entry.sprite && entry.sprite.active) {
+        return {
+            centerX: colToWorldX(col),
+            topY: row * TILE_SIZE
+        };
+    }
+    // Find nearest solid block near this column (e.g. after cleanup)
+    let best = null;
+    const colRange = 8;
+    for (const [_key, cell] of tileGrid.entries()) {
+        if (!cell.sprite || !cell.sprite.active) continue;
+        const c = cell.gridX;
+        const r = cell.gridY;
+        if (c >= col - colRange && c <= col + colRange) {
+            if (!best || r > best.gridY) best = { gridX: c, gridY: r };
+        }
+    }
+    if (!best) return null;
+    return {
+        centerX: colToWorldX(best.gridX),
+        topY: best.gridY * TILE_SIZE
+    };
+}
+
 // Column/surface helpers
 function setSurfaceRow(col, row) {
     surfaceByCol.set(col, row);

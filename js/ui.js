@@ -14,6 +14,20 @@ function createScoreDisplay(scene) {
     scoreText.setDepth(DEPTH_UI);
 }
 
+// Create lives display (top right)
+function createLivesDisplay(scene) {
+    const lives = typeof state !== 'undefined' && state.lives != null ? state.lives : 9;
+    livesText = scene.add.text(scene.cameras.main.width - 16, 16, 'Lives: ' + lives, {
+        fontSize: '32px',
+        fill: '#fff',
+        stroke: '#000',
+        strokeThickness: 4
+    });
+    livesText.setOrigin(1, 0); // Right-align
+    livesText.setScrollFactor(0);
+    livesText.setDepth(DEPTH_UI);
+}
+
 // Reload level function
 function reloadLevel() {
     // Reset joystick visual position
@@ -28,10 +42,16 @@ function reloadLevel() {
     joystickY = 0;
     jumpButtonPressed = false;
     
-    // Reset score
+    // Reset score and lives
     score = 0;
+    if (typeof state !== 'undefined') {
+        state.lives = 9;
+    }
     if (scoreText) {
         scoreText.setText('Score: 0');
+    }
+    if (livesText) {
+        livesText.setText('Lives: 9');
     }
     
     // Restart the scene
