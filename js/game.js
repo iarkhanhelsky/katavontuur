@@ -201,22 +201,34 @@ function create() {
 
 // Update function - handles game loop
 function update() {
+    // Game over: stop all game logic
+    if (typeof state !== 'undefined' && state.gameOver) {
+        return;
+    }
+
     // Ensure cursors and wasd are initialized
     if (!cursors || !wasd) {
         return;
     }
-    
+
     // Ensure cat exists
     if (!cat) {
         return;
     }
-    
+
     // Fall detection: cat below world -> lose one life, respawn on last solid block (center-aligned)
     const fallThreshold = WORLD_HEIGHT + 80;
     if (typeof state !== 'undefined' && state.lives != null && cat.y > fallThreshold) {
         state.lives--;
         if (livesText) livesText.setText('Lives: ' + state.lives);
-        if (state.lives > 0 && state.lastSafeBlock && typeof getRespawnBlock === 'function') {
+        if (state.lives <= 0) {
+            state.gameOver = true;
+            if (typeof showGameOver === 'function') {
+                showGameOver(this);
+            }
+            return;
+        }
+        if (state.lastSafeBlock && typeof getRespawnBlock === 'function') {
             const block = getRespawnBlock(state.lastSafeBlock.col, state.lastSafeBlock.row);
             if (block) {
                 const config = CAT_CONFIGS[CAT_TYPE];

@@ -28,8 +28,62 @@ function createLivesDisplay(scene) {
     livesText.setDepth(DEPTH_UI);
 }
 
+// Game over overlay (Phaser objects; set from showGameOver)
+let gameOverOverlay = null;
+let gameOverText = null;
+let restartButtonText = null;
+
+// Show game over screen (call when lives reach 0)
+function showGameOver(scene) {
+    if (gameOverOverlay) return; // Already showing
+    const w = scene.cameras.main.width;
+    const h = scene.cameras.main.height;
+    gameOverOverlay = scene.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.6);
+    gameOverOverlay.setScrollFactor(0);
+    gameOverOverlay.setDepth(DEPTH_GAME_OVER);
+    gameOverOverlay.setInteractive({ useHandCursor: true });
+
+    gameOverText = scene.add.text(w / 2, h / 2 - 50, 'Game Over', {
+        fontSize: '64px',
+        fill: '#fff',
+        stroke: '#000',
+        strokeThickness: 6
+    });
+    gameOverText.setOrigin(0.5, 0.5);
+    gameOverText.setScrollFactor(0);
+    gameOverText.setDepth(DEPTH_GAME_OVER + 1);
+
+    restartButtonText = scene.add.text(w / 2, h / 2 + 30, 'Restart', {
+        fontSize: '36px',
+        fill: '#ffcc00',
+        stroke: '#000',
+        strokeThickness: 4
+    });
+    restartButtonText.setOrigin(0.5, 0.5);
+    restartButtonText.setScrollFactor(0);
+    restartButtonText.setDepth(DEPTH_GAME_OVER + 1);
+    restartButtonText.setInteractive({ useHandCursor: true });
+    restartButtonText.on('pointerdown', function () {
+        reloadLevel();
+    });
+    restartButtonText.on('pointerover', function () {
+        restartButtonText.setStyle({ fill: '#ffe066' });
+    });
+    restartButtonText.on('pointerout', function () {
+        restartButtonText.setStyle({ fill: '#ffcc00' });
+    });
+}
+
 // Reload level function
 function reloadLevel() {
+    // Clear game over state
+    if (typeof state !== 'undefined') {
+        state.gameOver = false;
+    }
+    gameOverOverlay = null;
+    gameOverText = null;
+    restartButtonText = null;
+
     // Reset joystick visual position
     const joystickStick = document.getElementById('joystick-stick');
     if (joystickStick) {
