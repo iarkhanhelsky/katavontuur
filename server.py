@@ -28,6 +28,11 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         if self.editor_mode and self.path == '/':
             self.path = '/generate-matrix.html'
         return super().do_GET()
+
+    def guess_type(self, path):
+        if path.endswith('manifest.json'):
+            return 'application/manifest+json'
+        return super().guess_type(path)
     
     def end_headers(self):
         # Add CORS headers to allow local development
