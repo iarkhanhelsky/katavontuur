@@ -12,8 +12,8 @@ const MAX_WORLD_WIDTH = 100000; // Very large world bounds
 const CAT_START_X = 100; // World X where the cat spawns
 const START_ZONE_COLS = 5; // Number of columns (from 0) kept as flat ground with no obstacles
 
-// Cat animation configuration - switch between 'cat' and 'cat2'
-const CAT_TYPE = 'cat2'; // Change this to 'cat' or 'cat2' to switch animations
+// Cat animation configuration - switch between 'cat', 'cat2', and 'cat3'
+const CAT_TYPE = 'cat3'; // Change this to 'cat', 'cat2', or 'cat3' to switch animations
 
 // Cat animation configurations
 const CAT_CONFIGS = {
@@ -21,6 +21,7 @@ const CAT_CONFIGS = {
         frameWidth: 32,
         frameHeight: 32,
         scale: 1,
+        offsetY: 0, // extra nudge in frame pixels (positive = sprite down, fixes levitation)
         animations: {
             idle: { frames: 8, frameRate: 10, path: 'Idle-Stand-01-Sheet.png' },
             walk: { frames: 32, frameRate: 12, path: 'Walk-01-HeadHigh-Sheet.png' },
@@ -31,6 +32,20 @@ const CAT_CONFIGS = {
         frameWidth: 64,
         frameHeight: 64,
         scale: 1.5,
+        offsetY: 0,
+        animations: {
+            idle: { frames: 7, frameRate: 8, path: 'idle.png' },
+            walk: { frames: 7, frameRate: 24, path: 'walk.png' },
+            jump: { frames: 7, frameRate: 8, path: 'jump.png' },
+            run: { frames: 7, frameRate: 24, path: 'run.png' }
+        }
+    },
+    // cat3: frame size from assets/animations/cat3/idle.png (1216×173, 7 frames) → 173×173 per frame; scale = 96/173 to match cat2 on-screen height
+    'cat3': {
+        frameWidth: 173,
+        frameHeight: 173,
+        scale: 96 / 173,
+        offsetY: 28, // nudge down so feet align with ground (cat3 art has padding below feet)
         animations: {
             idle: { frames: 7, frameRate: 8, path: 'idle.png' },
             walk: { frames: 7, frameRate: 24, path: 'walk.png' },
