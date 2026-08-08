@@ -57,20 +57,18 @@
     pineSpikes: 'assets/sprites/pine-spikes.webp',
     landmarkAtlas: 'assets/sprites/landmark-atlas.webp',
     platformEdges: 'assets/sprites/platform-edges.webp',
-    idle: 'assets/animations/cat3/idle.png',
-    walk: 'assets/animations/cat3/walk.png',
-    run: 'assets/animations/cat3/run.png',
-    jump: 'assets/animations/cat3/jump.png',
-    attack: 'assets/animations/cat3/attack.png'
+    idle: 'assets/animations/cat4/idle.png',
+    walk: 'assets/animations/cat4/walk.png',
+    run: 'assets/animations/cat4/run.png',
+    jump: 'assets/animations/cat4/jump.png',
+    attack: 'assets/animations/cat4/attack.png'
   };
 
-  const catFrameMetrics = {
-    idle: [[92, 142], [97.5, 155], [63.5, 157], [74, 142], [74, 142], [97.5, 142], [87, 174]],
-    walk: [[73.5, 140], [73, 140], [74, 140], [73, 140], [90.5, 174], [72, 140], [96, 140]],
-    run: [[73.5, 136], [64.5, 154], [72.5, 136], [71.5, 136], [88, 136], [69, 136], [64, 155]],
-    jump: [[84.5, 174], [70, 135], [69.5, 135], [72, 134], [73.5, 135], [77, 135], [73, 135]],
-    attack: [[99, 139], [70.5, 138], [79, 138]]
-  };
+  const catFrameCounts = { idle: 7, walk: 7, run: 7, jump: 7, attack: 3 };
+  const CAT_CELL_SIZE = 192;
+  const CAT_ANCHOR_X = 104;
+  const CAT_FOOT_Y = 178;
+  const CAT_DRAW_SIZE = 139;
 
   const platforms = [
     { x: -80, y: 590, w: 930, h: 160, kind: 'earth' },
@@ -318,7 +316,7 @@
     if (nextAnim !== player.anim) { player.anim = nextAnim; player.animTime = 0; player.frame = 0; }
     player.animTime += dt;
     const fps = player.anim === 'idle' ? 7 : player.anim === 'jump' ? 9 : 12;
-    player.frame = Math.floor(player.animTime * fps) % catFrameMetrics[player.anim].length;
+    player.frame = Math.floor(player.animTime * fps) % catFrameCounts[player.anim];
   }
 
   function moveAndCollide(body, dt) {
@@ -849,13 +847,11 @@
     ctx.translate(centerX, centerY);
     if (player.facing < 0) ctx.scale(-1, 1);
     if (image?.complete && image.naturalWidth) {
-      const fw = image.naturalWidth / 7;
+      const fw = image.naturalWidth / catFrameCounts[player.anim];
       const fh = image.naturalHeight;
-      const size = 126;
-      const metric = catFrameMetrics[player.anim][player.frame];
-      const drawX = -(metric[0] / fw) * size;
-      const drawY = player.h / 2 + 1 - (metric[1] / fh) * size;
-      ctx.drawImage(image, player.frame * fw, 0, fw, fh, drawX, drawY, size, size);
+      const drawX = -(CAT_ANCHOR_X / CAT_CELL_SIZE) * CAT_DRAW_SIZE;
+      const drawY = player.h / 2 + 1 - (CAT_FOOT_Y / CAT_CELL_SIZE) * CAT_DRAW_SIZE;
+      ctx.drawImage(image, player.frame * fw, 0, fw, fh, drawX, drawY, CAT_DRAW_SIZE, CAT_DRAW_SIZE);
     } else {
       drawFallbackCat();
     }

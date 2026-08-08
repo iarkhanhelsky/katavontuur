@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cat Sprite Lab · Nine Lives, One Heist</title>
+  <link rel="icon" href="icons/png/icon-32.png">
+  <style>
+    :root { color-scheme: dark; font-family: "DM Mono", ui-monospace, monospace; background: #0d0918; color: #f8ecdc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 50% 0, #32204e, #0d0918 58%); }
+    main { width: min(980px, calc(100% - 28px)); margin: 0 auto; padding: 28px 0 50px; }
+    header { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+    h1 { margin: 0; font: 700 clamp(24px, 5vw, 42px)/1.05 Georgia, serif; }
+    p { color: #c8bbd5; line-height: 1.55; }
+    a { color: #c8f560; }
+    .panel { overflow: hidden; border: 1px solid #5e4d73; border-radius: 18px; background: rgba(16, 11, 29, .82); box-shadow: 0 24px 70px #05030a; }
+    canvas { display: block; width: 100%; height: auto; }
+    #stage { aspect-ratio: 16 / 9; background: #171224; }
+    #strip { border-top: 1px solid #3c304c; background: #110d1c; }
+    .controls { display: grid; grid-template-columns: repeat(6, auto) 1fr; gap: 10px; align-items: center; padding: 14px; border-top: 1px solid #3c304c; }
+    button, select, input { accent-color: #c8f560; }
+    button, select { min-height: 42px; border: 1px solid #66527d; border-radius: 10px; background: #231a35; color: #fff7e8; padding: 0 14px; font: inherit; }
+    button:hover { border-color: #c8f560; }
+    label { display: flex; align-items: center; gap: 7px; color: #d2c5de; white-space: nowrap; }
+    .speed { justify-self: stretch; }
+    .speed input { width: 100%; }
+    .readout { margin: 14px 4px 0; color: #a99bb7; font-size: 13px; }
+    @media (max-width: 720px) {
+      header { align-items: start; flex-direction: column; }
+      .controls { grid-template-columns: repeat(3, 1fr); }
+      .controls > * { justify-content: center; }
+      .speed { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p>Animation QA · exact 192×192 cells</p>
+        <h1>Cat sprite lab</h1>
+      </div>
+      <a href="./">Back to the heist</a>
+    </header>
+
+    <section class="panel" aria-label="Cat animation tester">
+      <canvas id="stage" width="960" height="540"></canvas>
+      <canvas id="strip" width="960" height="190"></canvas>
+      <div class="controls">
+        <select id="animation" aria-label="Animation"></select>
+        <button id="previous" type="button" aria-label="Previous frame">← Frame</button>
+        <button id="play" type="button">Pause</button>
+        <button id="next" type="button" aria-label="Next frame">Frame →</button>
+        <label><input id="onion" type="checkbox"> Onion skin</label>
+        <label><input id="guides" type="checkbox" checked> Guides</label>
+        <label class="speed">FPS <input id="fps" type="range" min="1" max="18" value="8"><output id="fpsValue">8</output></label>
+      </div>
+    </section>
+    <p class="readout" id="readout">Loading normalized sprite sheets…</p>
+  </main>
+  <script src="js/sprite-lab.js"></script>
+</body>
+</html>

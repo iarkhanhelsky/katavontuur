@@ -206,7 +206,7 @@ kbd {
   bottom: -8%;
   width: 62%;
   height: 62%;
-  background: url('assets/animations/cat3/idle.png') left center / 700% 100% no-repeat;
+  background: url('assets/animations/cat4/idle.png') left center / 700% 100% no-repeat;
   filter: brightness(.08) saturate(0) drop-shadow(0 8px 2px rgba(0,0,0,.35));
   transform: rotate(-7deg) scale(1.65);
   transform-origin: center bottom;

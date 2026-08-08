@@ -90,3 +90,19 @@
 - Shifted the raccoon guard sprite down 12px based on its alpha bounds so its rear paw rests on the platform surface while its collision behavior remains unchanged.
 - Added the new platform edge sheet and grounding corrections to offline shell cache version `v14`.
 - Verified the final render at 1280×720 and 390×844 on a fresh origin: cat and raccoon paws meet the moss line, thin platforms remain readable, sprite seams stay unobtrusive, and touch controls retain clear separation.
+
+## 2026-08-08 — Cat atlas diagnosis
+
+- Removed per-frame alpha-bound centering after live animation exposed that tails and attack effects were being mistaken for foot anchors, causing large horizontal and vertical sprite jumps.
+- A temporary stable anchor confirmed that the source sheet itself needed normalization rather than more runtime offsets.
+
+## 2026-08-08 — Precision cat atlas rebuild
+
+- Diagnosed the generated source sheet as 1216px divided across seven columns—fractional 173.714px cells—with stray detached pixels and four empty attack cells.
+- Added `scripts/repack-cat-atlas.py` to split the original 7×5 sheet by exact proportional boundaries, retain only the largest connected character component, recover antialiased edges, and repack each animation into exact 192×192 cells.
+- Anchored the cleaned frames to a shared torso pivot and 178px foot baseline, producing stable `cat4` idle, walk, run, jump, and three-frame attack sheets without generating replacement character poses.
+- Updated the game renderer to use the normalized cell count and shared anchor directly, removing per-frame position guesses while preserving the floor-level spawn.
+- Switched the title-screen cat silhouette to the same exact-cell idle atlas so its CSS animation no longer samples fractional legacy frames.
+- Added `sprite-lab.html`, a standalone animation QA page with animation selection, play/pause, frame stepping, speed control, onion skin, baseline guides, and a complete frame strip.
+- Updated offline shell cache version `v16` with the normalized cat art and animation lab.
+- Verified idle and walk visually in the lab, confirmed the three-frame attack sequence through its accessible state, loaded the normalized sheets in-game, and reran the repacker with identical SHA-256 outputs for all five atlases.
