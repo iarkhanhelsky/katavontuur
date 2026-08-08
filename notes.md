@@ -19,3 +19,10 @@
 - Reused the animated cat art for the title-screen moon silhouette and moved the title layer onto the same generated manor art for a coherent first impression.
 - Added a dedicated portrait-phone layout: full-viewport shell, undistorted centered playfield, safe-area-aware HUD, and large touch controls anchored below the action.
 - Rebuilt the manifest and service worker around relative static paths, the new title, current game assets, and an offline-first app shell; documented the finished controls and no-build local workflow in the README.
+
+## 2026-08-08 — QA and final polish
+
+- Verified title and gameplay renders in the in-app browser at 1280×720 desktop, 390×844 portrait phone, 844×390 landscape phone, and an 800×450 touch-control breakpoint.
+- Confirmed the browser console remains free of warnings/errors and the local static server returns every runtime, sprite, generated background, manifest, icon, and service-worker request without 404s.
+- Checked the handcrafted platform sequence against the movement envelope so the main route remains traversable without requiring the optional pounce shortcut.
+- Bumped the game cache version, preserved unrelated same-origin browser caches during service-worker upgrades, and added persistent unique-guard knockout tracking for the getaway summary.

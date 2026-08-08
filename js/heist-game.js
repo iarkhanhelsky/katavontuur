@@ -41,7 +41,8 @@
     ghostUnlocked: false,
     vaultHinted: false,
     secretOpened: false,
-    endStarted: false
+    endStarted: false,
+    guardsBonked: 0
   };
 
   const assets = {};
@@ -179,6 +180,7 @@
     game.vaultHinted = false;
     game.secretOpened = false;
     game.endStarted = false;
+    game.guardsBonked = 0;
     checkpoints.forEach(checkpoint => { checkpoint.reached = false; });
     updateHud();
   }
@@ -207,7 +209,7 @@
     ui.endKicker.textContent = success ? 'Heist complete' : 'Busted… sort of';
     ui.endTitle.textContent = success ? 'Clean getaway!' : 'Nine lives spent';
     ui.endSummary.textContent = success
-      ? `You lifted ${game.loot} treasures, embarrassed ${enemies.filter(e => e.stunned > 0).length} guards, and escaped with your whiskers intact.`
+      ? `You lifted ${game.loot} treasures, embarrassed ${game.guardsBonked} guards, and escaped with your whiskers intact.`
       : `The manor keeps its secrets tonight—but cat burglars always land on their feet.`;
     requestAnimationFrame(() => ui.end.classList.add('screen--visible'));
     chord(success ? [523, 659, 784] : [220, 185, 147]);
@@ -335,6 +337,10 @@
       if (!overlap(player, hitbox) || enemy.stunned > 0) continue;
       const attacking = player.dashTime > 0 || (player.vy > 250 && player.y + player.h < hitbox.y + hitbox.h * 0.65);
       if (attacking) {
+        if (!enemy.bonked) {
+          enemy.bonked = true;
+          game.guardsBonked += 1;
+        }
         enemy.stunned = 4.5;
         player.vy = -410;
         player.dashTime = 0;
