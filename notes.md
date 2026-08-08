@@ -43,3 +43,13 @@
 - Added six non-colliding trees across the route in a dedicated behind-platform render pass, plus a few extra pumpkins and gravestones to strengthen the cemetery-to-manor progression.
 - Replaced procedural lamps, pumpkins, and gravestones with the illustrated assets while retaining the original draw paths as load-safe fallbacks.
 - Added ambient lamp and pumpkin glows, a subtle secret-cache pulse, and an opening-area pumpkin so every refreshed prop family appears early; cached the new assets in offline shell version `v8`.
+
+## 2026-08-08 — Flying creatures and hazards pass
+
+- Generated and chroma-extracted a mischievous moonlit bat, a friendly cat-eared sheet ghost, a crooked blue-black pine, and a five-point iron spike strip in the established storybook-gouache style.
+- Repacked the artwork into two deterministic, equal-cell transparent WebP atlases: `flying-atlas.webp` and `pine-spikes.webp`.
+- Replaced procedural bats and the unlockable ghost companion with illustrated sprites, adding restrained squash-and-stretch motion while retaining load-safe Canvas fallbacks.
+- Placed five non-colliding pines across the cemetery, rooftop, manor, and vault sections to add depth without obscuring the playable route.
+- Applied the illustrated spike rail to every spike collision zone and changed the opening gap from abstract thorns to a clearly readable iron hazard.
+- Added both atlases to offline shell cache version `v9` and checked their transparency, crop boundaries, and dark-background readability before integration.
+- Verified the live pass at 1280×720 and 390×844: all new assets returned 200, the spike rail stayed readable at both scales, and the pine layer preserved clear platforms and touch controls.

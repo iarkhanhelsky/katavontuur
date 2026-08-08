@@ -53,6 +53,8 @@
     lootAtlas: 'assets/sprites/loot-atlas.webp',
     decorTall: 'assets/sprites/decor-tall.webp',
     decorSmall: 'assets/sprites/decor-small.webp',
+    flyingAtlas: 'assets/sprites/flying-atlas.webp',
+    pineSpikes: 'assets/sprites/pine-spikes.webp',
     idle: 'assets/animations/cat3/idle.png',
     walk: 'assets/animations/cat3/walk.png',
     run: 'assets/animations/cat3/run.png',
@@ -95,7 +97,7 @@
   ];
 
   const hazardsTemplate = [
-    { x: 850, y: 570, w: 185, h: 22, type: 'thorns' },
+    { x: 850, y: 570, w: 185, h: 22, type: 'spikes' },
     { x: 2690, y: 568, w: 40, h: 22, type: 'spikes' },
     { x: 3840, y: 568, w: 26, h: 22, type: 'spikes' },
     { x: 4565, y: 568, w: 45, h: 22, type: 'spikes' },
@@ -141,6 +143,11 @@
     { x: 3650, y: 590, type: 'tree', scale: .95 },
     { x: 5070, y: 590, type: 'tree', scale: .78 },
     { x: 6040, y: 590, type: 'tree', scale: .86 },
+    { x: 780, y: 590, type: 'pine', scale: .86 },
+    { x: 2860, y: 535, type: 'pine', scale: .72 },
+    { x: 4120, y: 550, type: 'pine', scale: .8 },
+    { x: 5340, y: 535, type: 'pine', scale: .78 },
+    { x: 6250, y: 540, type: 'pine', scale: .74 },
     { x: 210, y: 590, type: 'sign' }, { x: 490, y: 590, type: 'grave' }, { x: 730, y: 590, type: 'pumpkin' },
     { x: 1140, y: 590, type: 'lamp' }, { x: 1710, y: 590, type: 'pumpkin' },
     { x: 2240, y: 590, type: 'lamp' }, { x: 2600, y: 590, type: 'grave' }, { x: 2350, y: 590, type: 'pumpkin' },
@@ -625,6 +632,19 @@
 
   function drawHazards() {
     for (const h of hazards) {
+      const atlas = assets.pineSpikes;
+      if (h.type === 'spikes' && atlas?.complete && atlas.naturalWidth) {
+        const tileSize = h.h * 2.5;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(h.x - 4, h.y - 4, h.w + 8, h.h + 8);
+        ctx.clip();
+        for (let x = h.x - 3; x < h.x + h.w; x += tileSize * .86) {
+          drawAtlasCell(atlas, 1, 2, x, h.y - tileSize * .3, tileSize, tileSize);
+        }
+        ctx.restore();
+        continue;
+      }
       ctx.fillStyle = h.type === 'thorns' ? '#42223f' : '#a5a1b0';
       const count = Math.max(2, Math.floor(h.w / 18));
       for (let i = 0; i < count; i++) {
@@ -640,7 +660,7 @@
 
   function drawDecor() {
     for (const item of decor) {
-      if (item.type === 'tree') continue;
+      if (item.type === 'tree' || item.type === 'pine') continue;
       if (item.type === 'lamp') drawLamp(item.x, item.y);
       else if (item.type === 'grave') drawGrave(item.x, item.y);
       else if (item.type === 'pumpkin' || item.type === 'secret') drawPumpkin(item.x, item.y, item.type === 'secret');
@@ -650,12 +670,13 @@
 
   function drawBackdropDecor() {
     for (const item of decor) {
-      if (item.type !== 'tree') continue;
-      const atlas = assets.decorTall;
+      if (item.type !== 'tree' && item.type !== 'pine') continue;
+      const isPine = item.type === 'pine';
+      const atlas = isPine ? assets.pineSpikes : assets.decorTall;
       if (atlas?.complete && atlas.naturalWidth) {
-        const size = 280 * (item.scale || 1);
+        const size = (isPine ? 250 : 280) * (item.scale || 1);
         ctx.save();
-        ctx.globalAlpha = .88;
+        ctx.globalAlpha = isPine ? .82 : .88;
         drawAtlasCell(atlas, 0, 2, item.x - size / 2, item.y - size, size, size);
         ctx.restore();
       }
@@ -803,6 +824,15 @@
   }
 
   function drawBat() {
+    const atlas = assets.flyingAtlas;
+    if (atlas?.complete && atlas.naturalWidth) {
+      const flap = 1 + Math.sin(game.time * 9) * .035;
+      ctx.save();
+      ctx.scale(1, flap);
+      drawAtlasCell(atlas, 0, 2, -49, -37, 98, 74);
+      ctx.restore();
+      return;
+    }
     ctx.fillStyle = '#17111f';
     ctx.beginPath(); ctx.moveTo(0,8); ctx.quadraticCurveTo(-28,-22,-45,-2); ctx.quadraticCurveTo(-27,-5,-24,19); ctx.quadraticCurveTo(-10,7,0,17); ctx.closePath(); ctx.fill();
     ctx.beginPath(); ctx.moveTo(0,8); ctx.quadraticCurveTo(28,-22,45,-2); ctx.quadraticCurveTo(27,-5,24,19); ctx.quadraticCurveTo(10,7,0,17); ctx.closePath(); ctx.fill();
@@ -842,7 +872,15 @@
   function drawGhost() {
     const gx = player.x - player.facing * 75 + Math.sin(game.time * 2.1) * 12;
     const gy = player.y - 18 + Math.sin(game.time * 3) * 8;
-    ctx.save(); ctx.globalAlpha = .52; ctx.translate(gx, gy);
+    ctx.save(); ctx.globalAlpha = .58; ctx.translate(gx, gy);
+    const atlas = assets.flyingAtlas;
+    if (atlas?.complete && atlas.naturalWidth) {
+      const drift = 1 + Math.sin(game.time * 3) * .025;
+      ctx.scale(drift, 1 / drift);
+      drawAtlasCell(atlas, 1, 2, -37, -37, 74, 74);
+      ctx.restore();
+      return;
+    }
     ctx.fillStyle = '#c7eff2';
     ctx.beginPath(); ctx.arc(0, 0, 18, Math.PI, 0); ctx.lineTo(18, 25); ctx.lineTo(9, 18); ctx.lineTo(0, 25); ctx.lineTo(-9, 18); ctx.lineTo(-18,25); ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#35294a'; ctx.beginPath(); ctx.arc(-6,-1,2.5,0,Math.PI*2); ctx.arc(6,-1,2.5,0,Math.PI*2); ctx.fill();
