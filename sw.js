@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nine-lives-heist-v11';
+const CACHE_NAME = 'nine-lives-heist-v12';
 const APP_SHELL = [
   './',
   './index.html',
@@ -13,6 +13,7 @@ const APP_SHELL = [
   './assets/sprites/decor-small.webp',
   './assets/sprites/flying-atlas.webp',
   './assets/sprites/pine-spikes.webp',
+  './assets/sprites/landmark-atlas.webp',
   './assets/animations/cat3/idle.png',
   './assets/animations/cat3/walk.png',
   './assets/animations/cat3/run.png',

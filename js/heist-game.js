@@ -55,6 +55,7 @@
     decorSmall: 'assets/sprites/decor-small.webp',
     flyingAtlas: 'assets/sprites/flying-atlas.webp',
     pineSpikes: 'assets/sprites/pine-spikes.webp',
+    landmarkAtlas: 'assets/sprites/landmark-atlas.webp',
     idle: 'assets/animations/cat3/idle.png',
     walk: 'assets/animations/cat3/walk.png',
     run: 'assets/animations/cat3/run.png',
@@ -539,16 +540,20 @@
     ctx.fillStyle = veil;
     ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-    ctx.save();
-    ctx.globalAlpha = .09;
-    ctx.fillStyle = '#d9c6ff';
     for (let i = 0; i < 7; i++) {
       const x = ((i * 290 - game.cameraX * .12 + game.time * 9) % 1800) - 250;
-      ctx.beginPath();
-      ctx.ellipse(x, 500 + Math.sin(i * 2.4) * 42, 260, 34, 0, 0, Math.PI * 2);
-      ctx.fill();
+      const y = 500 + Math.sin(i * 2.4) * 42;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(1, .15);
+      const fog = ctx.createRadialGradient(0, 0, 20, 0, 0, 260);
+      fog.addColorStop(0, 'rgba(217,198,255,.08)');
+      fog.addColorStop(.55, 'rgba(217,198,255,.035)');
+      fog.addColorStop(1, 'rgba(217,198,255,0)');
+      ctx.fillStyle = fog;
+      ctx.fillRect(-260, -260, 520, 520);
+      ctx.restore();
     }
-    ctx.restore();
   }
 
   function drawPlatforms() {
@@ -570,14 +575,15 @@
         ctx.restore();
       }
 
+      const lipHeight = Math.min(10, p.h);
       ctx.fillStyle = palette.top;
-      roundedRect(ctx, p.x, p.y, p.w, Math.min(14, p.h), 7);
+      roundedRect(ctx, p.x, p.y, p.w, lipHeight, 5);
       ctx.fill();
       ctx.strokeStyle = palette.line;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(p.x + 7, p.y + 14);
-      ctx.lineTo(p.x + p.w - 7, p.y + 14);
+      ctx.moveTo(p.x + 6, p.y + lipHeight);
+      ctx.lineTo(p.x + p.w - 6, p.y + lipHeight);
       ctx.stroke();
 
       if (p.h > 50 && !cobblePattern) {
@@ -592,10 +598,6 @@
             ctx.beginPath(); ctx.moveTo(x, y - 20); ctx.lineTo(x, y); ctx.stroke();
           }
         }
-      }
-      ctx.fillStyle = 'rgba(200,245,96,.15)';
-      for (let x = p.x + 12; x < p.x + p.w; x += 48) {
-        if ((x * 13) % 5 < 2) ctx.fillRect(x, p.y - 3, 22, 4);
       }
     }
   }
@@ -704,7 +706,6 @@
 
   function drawPumpkin(x, y, secret) {
     if (secret && game.secretOpened) {
-      ctx.strokeStyle = '#ff9b42'; ctx.lineWidth = 3; ctx.strokeRect(x - 35, y - 78, 70, 78);
       return;
     }
     const atlas = assets.decorSmall;
@@ -731,6 +732,16 @@
   }
 
   function drawSign(x, y) {
+    const atlas = assets.landmarkAtlas;
+    if (atlas?.complete && atlas.naturalWidth) {
+      drawAtlasCell(atlas, 0, 2, x - 67, y - 140, 134, 140);
+      ctx.fillStyle = '#ffe0a0';
+      ctx.font = '700 13px "DM Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('MANOR →', x - 2, y - 98);
+      ctx.textAlign = 'left';
+      return;
+    }
     ctx.fillStyle = '#352233'; ctx.fillRect(x - 4, y - 90, 8, 90);
     ctx.fillStyle = '#5d3740'; roundedRect(ctx, x - 48, y - 108, 96, 39, 5); ctx.fill();
     ctx.fillStyle = '#f2c888'; ctx.font = '600 13px "DM Mono", monospace'; ctx.textAlign = 'center';
@@ -891,6 +902,22 @@
     const glow = ctx.createRadialGradient(0, -88, 5, 0, -88, 115);
     glow.addColorStop(0, open ? 'rgba(200,245,96,.35)' : 'rgba(255,155,66,.2)'); glow.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = glow; ctx.fillRect(-120, -210, 240, 210);
+    const atlas = assets.landmarkAtlas;
+    if (atlas?.complete && atlas.naturalWidth) {
+      ctx.save();
+      if (open) ctx.filter = 'drop-shadow(0 0 18px rgba(200,245,96,.65))';
+      drawAtlasCell(atlas, 1, 2, -108, -216, 216, 216);
+      ctx.restore();
+      if (open) {
+        ctx.save();
+        ctx.globalAlpha = .12 + Math.sin(game.time * 3) * .04;
+        ctx.globalCompositeOperation = 'screen';
+        drawAtlasCell(atlas, 1, 2, -108, -216, 216, 216);
+        ctx.restore();
+      }
+      ctx.restore();
+      return;
+    }
     ctx.fillStyle = '#18121f'; roundedRect(ctx, -58, -156, 116, 156, 55); ctx.fill();
     ctx.strokeStyle = open ? '#c8f560' : '#9a718b'; ctx.lineWidth = 8; ctx.stroke();
     ctx.fillStyle = open ? '#c8f560' : '#ff9b42'; ctx.font = '44px serif'; ctx.textAlign = 'center'; ctx.fillText(open ? '☾' : '♙', 0, -77); ctx.textAlign = 'left';

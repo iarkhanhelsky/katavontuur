@@ -68,3 +68,13 @@
 - Restored the six illustrated crooked-tree placements and kept the five newer pine placements, preserving both scenery families as requested.
 - Bumped the offline shell to `v11` so the corrected background and mixed woodland arrive together in previews.
 - Verified the opening scene on a fresh uncached origin: the malformed silhouette is gone, while both the crooked tree and nearby pine render behind the route correctly.
+
+## 2026-08-08 — Primitive geometry cleanup
+
+- Audited every visible Canvas primitive and separated intentional gameplay geometry from decorative placeholders and artifacts.
+- Removed the tiny repeated green rectangles that sat above platform edges, then tightened the platform lip so the painted cobblestone texture remains the dominant surface treatment.
+- Replaced the hard-edged oval fog shapes with soft radial wisps and removed the empty orange rectangle left behind after opening the secret pumpkin.
+- Generated, chroma-extracted, and repacked an illustrated wooden manor sign and moon-vault door into `landmark-atlas.webp`, replacing both rectangle-built landmarks while keeping exact sign text code-rendered for clarity.
+- Kept the guard flashlight cone, collision silhouettes, glows, and particles because they provide functional feedback rather than decorative scenery; retained all asset fallbacks for interrupted or slow image loading.
+- Added the landmark atlas to offline shell cache version `v12`.
+- Verified the cleaned opening scene at 1280×720 and 390×844 on a fresh origin; the textured platform edge, illustrated sign, objectives, and touch controls remain clear at both scales.
