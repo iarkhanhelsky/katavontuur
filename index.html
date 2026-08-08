@@ -1,64 +1,80 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#4a7c59">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Kat Avontuur">
-    <title>Cat Platformer Prototype</title>
-    <link rel="icon" type="image/png" href="icons/png/icon-32.png" sizes="32x32">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/png/icon-180.png">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#140d24">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nine Lives, One Heist">
+  <meta name="description" content="A moonlit cat caper through a delightfully haunted manor.">
+  <title>Nine Lives, One Heist</title>
+  <link rel="icon" type="image/png" href="icons/png/icon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="icons/png/icon-180.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="wrapper">
-        <div id="debug-controls">
-            <label>
-                <input type="checkbox" id="debug-checkbox">
-                Show Hit Boxes (Debug)
-            </label>
+  <main id="game-shell" aria-label="Nine Lives, One Heist game">
+    <canvas id="game" width="1280" height="720" aria-label="Game canvas"></canvas>
+
+    <section id="title-screen" class="screen screen--visible" aria-labelledby="game-title">
+      <div class="moon" aria-hidden="true"><span class="moon-cat">♠</span></div>
+      <div class="title-card">
+        <p class="eyebrow">A very quiet burglary</p>
+        <h1 id="game-title"><span>Nine Lives,</span> One Heist</h1>
+        <p class="premise">The Count stole every treat in town. Sneak into his moonlit manor, fill your loot bag, and try not to wake the gargoyles.</p>
+        <button id="start-button" class="primary-button" type="button">
+          <span>Begin the heist</span><small>Enter · Space · Tap</small>
+        </button>
+        <div class="control-hints" aria-label="Controls">
+          <span><kbd>A</kbd><kbd>D</kbd> Move</span>
+          <span><kbd>W</kbd> Jump</span>
+          <span><kbd>Shift</kbd> Pounce</span>
         </div>
-        <div id="game-container">
-            <div id="mobile-controls">
-                <div id="joystick-container">
-                    <div id="joystick-base"></div>
-                    <div id="joystick-stick"></div>
-                </div>
-                <div id="jump-button">JUMP</div>
-            </div>
-        </div>
-        <button id="reload-button">Reload Level</button>
+      </div>
+      <div class="title-footer">
+        <span>Cat burglar license: pending</span>
+        <button id="sound-toggle" class="icon-button" type="button" aria-label="Toggle sound" aria-pressed="false">Sound on</button>
+      </div>
+    </section>
+
+    <section id="hud" class="hud" aria-label="Game status" hidden>
+      <div class="hud-group">
+        <span class="hud-label">Loot</span>
+        <strong id="loot-count">0 / 0</strong>
+      </div>
+      <div class="objective"><span id="objective-text">Find the moon vault</span></div>
+      <div class="hud-group hud-group--right">
+        <span class="hud-label">Lives</span>
+        <strong id="lives-count">♥ ♥ ♥</strong>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <div id="touch-controls" class="touch-controls" aria-label="Touch controls" hidden>
+      <div class="touch-move">
+        <button class="touch-button" type="button" data-control="left" aria-label="Move left">‹</button>
+        <button class="touch-button" type="button" data-control="right" aria-label="Move right">›</button>
+      </div>
+      <div class="touch-actions">
+        <button class="touch-button touch-button--small" type="button" data-control="dash" aria-label="Pounce">Pounce</button>
+        <button class="touch-button touch-button--jump" type="button" data-control="jump" aria-label="Jump">↑</button>
+      </div>
     </div>
 
-    <!-- Phaser.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+    <section id="end-screen" class="screen" aria-labelledby="end-title" hidden>
+      <div class="title-card end-card">
+        <p id="end-kicker" class="eyebrow">Heist complete</p>
+        <h2 id="end-title">Clean getaway!</h2>
+        <p id="end-summary"></p>
+        <button id="restart-button" class="primary-button" type="button"><span>Heist again</span><small>Try for a better haul</small></button>
+      </div>
+    </section>
+  </main>
 
-    <!-- Tile System Scripts -->
-    <script src="tile-analyzer.js"></script>
-    <script src="tile-config.js"></script>
-    <script src="tile-rules.js"></script>
-
-    <!-- Game Modules (in dependency order) -->
-    <script src="js/constants.js"></script>
-    <script src="js/state.js"></script>
-    <script src="js/cat.js"></script>
-    <script src="js/world.js"></script>
-    <script src="js/controls.js"></script>
-    <script src="js/debug.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/game.js"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () {
-          navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(
-            function (reg) { console.log('SW registered:', reg.scope); },
-            function (err) { console.warn('SW registration failed:', err); }
-          );
-        });
-      }
-    </script>
+  <noscript>This game needs JavaScript enabled to run.</noscript>
+  <script src="js/heist-game.js" defer></script>
 </body>
 </html>
