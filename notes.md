@@ -26,3 +26,12 @@
 - Confirmed the browser console remains free of warnings/errors and the local static server returns every runtime, sprite, generated background, manifest, icon, and service-worker request without 404s.
 - Checked the handcrafted platform sequence against the movement envelope so the main route remains traversable without requiring the optional pounce shortcut.
 - Bumped the game cache version, preserved unrelated same-origin browser caches during service-worker upgrades, and added persistent unique-guard knockout tracking for the getaway summary.
+
+## 2026-08-08 — Sprite and texture art pass
+
+- Generated a new storybook-gouache raccoon night guard with a brass flashlight, extracted it from a flat green key, and integrated it with subtle walk bob and stun tilt while preserving the lightweight code-drawn fallback.
+- Generated four cohesive heist collectibles—wrapped candy, cat coin, lavender gem, and moon medallion—then chroma-extracted, cleaned, and repacked them into deterministic equal-width atlas cells.
+- Generated a cool aubergine cobblestone texture, constructed a mirrored seamless 512px tile from it, and layered it over every platform family with restrained per-surface opacity so collision edges remain obvious.
+- Tuned the in-game texture blend after visual QA so cobbles remain visible on dark platform sides while the bright collision lip stays clean and untextured.
+- Removed the old procedural brick grid whenever the painted texture is available, eliminating visual competition and letting the irregular stone surface read clearly.
+- Compressed all three project-bound assets to alpha-capable or opaque WebP and added them to the offline app shell under cache version `v6`.

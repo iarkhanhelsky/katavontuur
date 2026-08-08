@@ -48,6 +48,9 @@
   const assets = {};
   const assetSources = {
     background: 'assets/backgrounds/heist-manor.webp',
+    cobble: 'assets/textures/moonlit-cobble.webp',
+    raccoonGuard: 'assets/sprites/raccoon-guard.webp',
+    lootAtlas: 'assets/sprites/loot-atlas.webp',
     idle: 'assets/animations/cat3/idle.png',
     walk: 'assets/animations/cat3/walk.png',
     run: 'assets/animations/cat3/run.png',
@@ -145,6 +148,7 @@
   let player;
   let audioContext;
   let toastTimeout;
+  const patterns = {};
 
   function loadAssets() {
     for (const [key, src] of Object.entries(assetSources)) {
@@ -551,6 +555,19 @@
       ctx.fillStyle = palette.side;
       roundedRect(ctx, p.x, p.y, p.w, p.h, Math.min(10, p.h / 3));
       ctx.fill();
+
+      const cobblePattern = getPattern('cobble');
+      if (cobblePattern) {
+        ctx.save();
+        roundedRect(ctx, p.x, p.y, p.w, p.h, Math.min(10, p.h / 3));
+        ctx.clip();
+        ctx.globalAlpha = p.kind === 'earth' ? .54 : p.kind === 'roof' ? .6 : .66;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = cobblePattern;
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+        ctx.restore();
+      }
+
       ctx.fillStyle = palette.top;
       roundedRect(ctx, p.x, p.y, p.w, Math.min(14, p.h), 7);
       ctx.fill();
@@ -561,7 +578,7 @@
       ctx.lineTo(p.x + p.w - 7, p.y + 14);
       ctx.stroke();
 
-      if (p.h > 50) {
+      if (p.h > 50 && !cobblePattern) {
         ctx.strokeStyle = 'rgba(255,255,255,.055)';
         ctx.lineWidth = 2;
         for (let y = p.y + 36; y < Math.min(VIEW_H + 30, p.y + p.h); y += 34) {
@@ -588,6 +605,13 @@
     if (kind === 'vault') return { top: '#61536f', side: '#201b2b', line: '#aa8c75' };
     if (kind === 'manor') return { top: '#4d3b5d', side: '#1d1729', line: '#8b667f' };
     return { top: '#4c5261', side: '#22202f', line: '#80879a' };
+  }
+
+  function getPattern(key) {
+    const image = assets[key];
+    if (!image?.complete || !image.naturalWidth) return null;
+    patterns[key] ||= ctx.createPattern(image, 'repeat');
+    return patterns[key];
   }
 
   function drawHazards() {
@@ -662,7 +686,13 @@
       glow.addColorStop(1, 'rgba(255,170,80,0)');
       ctx.fillStyle = glow; ctx.fillRect(item.x - 38, y - 38, 76, 76);
       ctx.save(); ctx.translate(item.x, y); ctx.rotate(Math.sin(game.time * 2 + item.bob) * .08);
-      if (item.type === 'gem') {
+      const atlas = assets.lootAtlas;
+      if (atlas?.complete && atlas.naturalWidth) {
+        const atlasIndex = item.type === 'candy' ? 0 : item.type === 'coin' ? 1 : item.type === 'gem' ? 2 : 3;
+        const cellWidth = atlas.naturalWidth / 4;
+        const size = item.type === 'candy' ? 58 : 52;
+        ctx.drawImage(atlas, atlasIndex * cellWidth, 0, cellWidth, atlas.naturalHeight, -size / 2, -size / 2, size, size);
+      } else if (item.type === 'gem') {
         ctx.fillStyle = '#dca5ff'; ctx.beginPath(); ctx.moveTo(0, -17); ctx.lineTo(15, -4); ctx.lineTo(9, 16); ctx.lineTo(-9, 16); ctx.lineTo(-15, -4); ctx.closePath(); ctx.fill();
         ctx.strokeStyle = '#fff0ff'; ctx.lineWidth = 2; ctx.stroke();
       } else if (item.type === 'coin' || item.type === 'moon') {
@@ -698,6 +728,15 @@
       const cone = ctx.createLinearGradient(18, 18, 160, 30);
       cone.addColorStop(0, 'rgba(255,208,112,.18)'); cone.addColorStop(1, 'rgba(255,208,112,0)');
       ctx.fillStyle = cone; ctx.beginPath(); ctx.moveTo(20, 12); ctx.lineTo(170, -22); ctx.lineTo(170, 62); ctx.closePath(); ctx.fill();
+    }
+    const sprite = assets.raccoonGuard;
+    if (sprite?.complete && sprite.naturalWidth) {
+      ctx.save();
+      ctx.translate(0, Math.sin(enemy.phase * 8) * 1.5);
+      ctx.rotate(enemy.stunned > 0 ? -.08 : Math.sin(enemy.phase * 4) * .018);
+      ctx.drawImage(sprite, -59, -47, 118, 118);
+      ctx.restore();
+      return;
     }
     ctx.fillStyle = '#4f4d5d'; ctx.beginPath(); ctx.ellipse(0, 34, 30, 25, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#686777'; ctx.beginPath(); ctx.arc(10, 12, 24, 0, Math.PI * 2); ctx.fill();

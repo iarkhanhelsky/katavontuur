@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nine-lives-heist-v3';
+const CACHE_NAME = 'nine-lives-heist-v6';
 const APP_SHELL = [
   './',
   './index.html',
@@ -6,6 +6,9 @@ const APP_SHELL = [
   './manifest.json',
   './js/heist-game.js',
   './assets/backgrounds/heist-manor.webp',
+  './assets/textures/moonlit-cobble.webp',
+  './assets/sprites/raccoon-guard.webp',
+  './assets/sprites/loot-atlas.webp',
   './assets/animations/cat3/idle.png',
   './assets/animations/cat3/walk.png',
   './assets/animations/cat3/run.png',
