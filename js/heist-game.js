@@ -51,6 +51,8 @@
     cobble: 'assets/textures/moonlit-cobble.webp',
     raccoonGuard: 'assets/sprites/raccoon-guard.webp',
     lootAtlas: 'assets/sprites/loot-atlas.webp',
+    decorTall: 'assets/sprites/decor-tall.webp',
+    decorSmall: 'assets/sprites/decor-small.webp',
     idle: 'assets/animations/cat3/idle.png',
     walk: 'assets/animations/cat3/walk.png',
     run: 'assets/animations/cat3/run.png',
@@ -133,12 +135,18 @@
   ];
 
   const decor = [
-    { x: 210, y: 590, type: 'sign' }, { x: 490, y: 590, type: 'grave' },
+    { x: 540, y: 590, type: 'tree', scale: 1 },
+    { x: 1640, y: 590, type: 'tree', scale: .82 },
+    { x: 2550, y: 590, type: 'tree', scale: .9 },
+    { x: 3650, y: 590, type: 'tree', scale: .95 },
+    { x: 5070, y: 590, type: 'tree', scale: .78 },
+    { x: 6040, y: 590, type: 'tree', scale: .86 },
+    { x: 210, y: 590, type: 'sign' }, { x: 490, y: 590, type: 'grave' }, { x: 730, y: 590, type: 'pumpkin' },
     { x: 1140, y: 590, type: 'lamp' }, { x: 1710, y: 590, type: 'pumpkin' },
-    { x: 2240, y: 590, type: 'lamp' }, { x: 2600, y: 590, type: 'grave' },
+    { x: 2240, y: 590, type: 'lamp' }, { x: 2600, y: 590, type: 'grave' }, { x: 2350, y: 590, type: 'pumpkin' },
     { x: 3200, y: 590, type: 'secret' }, { x: 3720, y: 590, type: 'pumpkin' },
-    { x: 4690, y: 590, type: 'lamp' }, { x: 5160, y: 590, type: 'pumpkin' },
-    { x: 5750, y: 590, type: 'lamp' }, { x: 6710, y: 590, type: 'lamp' }
+    { x: 4690, y: 590, type: 'lamp' }, { x: 5160, y: 590, type: 'pumpkin' }, { x: 4870, y: 590, type: 'grave' },
+    { x: 5750, y: 590, type: 'lamp' }, { x: 6710, y: 590, type: 'lamp' }, { x: 6870, y: 590, type: 'grave' }
   ];
 
   let hazards = [];
@@ -484,6 +492,7 @@
     ctx.save();
     ctx.translate(-game.cameraX + shakeX, shakeY);
     drawWorldBack();
+    drawBackdropDecor();
     drawPlatforms();
     drawHazards();
     drawDecor();
@@ -631,6 +640,7 @@
 
   function drawDecor() {
     for (const item of decor) {
+      if (item.type === 'tree') continue;
       if (item.type === 'lamp') drawLamp(item.x, item.y);
       else if (item.type === 'grave') drawGrave(item.x, item.y);
       else if (item.type === 'pumpkin' || item.type === 'secret') drawPumpkin(item.x, item.y, item.type === 'secret');
@@ -638,10 +648,34 @@
     }
   }
 
+  function drawBackdropDecor() {
+    for (const item of decor) {
+      if (item.type !== 'tree') continue;
+      const atlas = assets.decorTall;
+      if (atlas?.complete && atlas.naturalWidth) {
+        const size = 280 * (item.scale || 1);
+        ctx.save();
+        ctx.globalAlpha = .88;
+        drawAtlasCell(atlas, 0, 2, item.x - size / 2, item.y - size, size, size);
+        ctx.restore();
+      }
+    }
+  }
+
+  function drawAtlasCell(atlas, index, cells, x, y, width, height) {
+    const cellWidth = atlas.naturalWidth / cells;
+    ctx.drawImage(atlas, index * cellWidth, 0, cellWidth, atlas.naturalHeight, x, y, width, height);
+  }
+
   function drawLamp(x, y) {
     const glow = ctx.createRadialGradient(x, y - 108, 4, x, y - 108, 70);
     glow.addColorStop(0, 'rgba(255,180,82,.28)'); glow.addColorStop(1, 'rgba(255,180,82,0)');
     ctx.fillStyle = glow; ctx.fillRect(x - 75, y - 185, 150, 150);
+    const atlas = assets.decorTall;
+    if (atlas?.complete && atlas.naturalWidth) {
+      drawAtlasCell(atlas, 1, 2, x - 72, y - 185, 144, 185);
+      return;
+    }
     ctx.fillStyle = '#18121f'; ctx.fillRect(x - 4, y - 105, 8, 105);
     ctx.fillStyle = '#ffb052'; roundedRect(ctx, x - 14, y - 133, 28, 32, 5); ctx.fill();
     ctx.strokeStyle = '#241829'; ctx.lineWidth = 5; ctx.stroke();
@@ -649,6 +683,11 @@
   }
 
   function drawGrave(x, y) {
+    const atlas = assets.decorSmall;
+    if (atlas?.complete && atlas.naturalWidth) {
+      drawAtlasCell(atlas, 1, 2, x - 42, y - 84, 84, 84);
+      return;
+    }
     ctx.fillStyle = '#393747'; roundedRect(ctx, x - 28, y - 72, 56, 72, 22); ctx.fill();
     ctx.fillStyle = '#777282'; ctx.fillRect(x - 4, y - 54, 8, 35); ctx.fillRect(x - 15, y - 44, 30, 7);
     ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x - 22, y - 8, 44, 8);
@@ -657,6 +696,18 @@
   function drawPumpkin(x, y, secret) {
     if (secret && game.secretOpened) {
       ctx.strokeStyle = '#ff9b42'; ctx.lineWidth = 3; ctx.strokeRect(x - 35, y - 78, 70, 78);
+      return;
+    }
+    const atlas = assets.decorSmall;
+    if (atlas?.complete && atlas.naturalWidth) {
+      const glow = ctx.createRadialGradient(x, y - 34, 3, x, y - 34, 46);
+      glow.addColorStop(0, 'rgba(255,165,62,.18)'); glow.addColorStop(1, 'rgba(255,165,62,0)');
+      ctx.fillStyle = glow; ctx.fillRect(x - 50, y - 86, 100, 86);
+      drawAtlasCell(atlas, 0, 2, x - 39, y - 78, 78, 78);
+      if (secret) {
+        ctx.strokeStyle = 'rgba(200,245,96,.55)'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(x, y - 36, 31 + Math.sin(game.time * 3) * 2, 0, Math.PI * 2); ctx.stroke();
+      }
       return;
     }
     ctx.fillStyle = secret ? '#7a3a47' : '#cc663e';

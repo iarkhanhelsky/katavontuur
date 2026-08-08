@@ -35,3 +35,11 @@
 - Tuned the in-game texture blend after visual QA so cobbles remain visible on dark platform sides while the bright collision lip stays clean and untextured.
 - Removed the old procedural brick grid whenever the painted texture is available, eliminating visual competition and letting the irregular stone surface read clearly.
 - Compressed all three project-bound assets to alpha-capable or opaque WebP and added them to the offline app shell under cache version `v6`.
+
+## 2026-08-08 — Halloween scenery pass
+
+- Generated and chroma-extracted two scale-matched scenery atlases: a tall sheet with a crooked charm tree and Victorian lamp post, plus a compact sheet with a glowing cat-faced pumpkin and crescent-paw gravestone.
+- Repacked every prop into exact equal-width atlas cells and compressed the transparent sheets to WebP for deterministic Canvas cropping and lightweight delivery.
+- Added six non-colliding trees across the route in a dedicated behind-platform render pass, plus a few extra pumpkins and gravestones to strengthen the cemetery-to-manor progression.
+- Replaced procedural lamps, pumpkins, and gravestones with the illustrated assets while retaining the original draw paths as load-safe fallbacks.
+- Added ambient lamp and pumpkin glows, a subtle secret-cache pulse, and an opening-area pumpkin so every refreshed prop family appears early; cached the new assets in offline shell version `v8`.
