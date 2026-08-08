@@ -13,6 +13,8 @@
     objective: document.querySelector('#objective-text'),
     toast: document.querySelector('#toast'),
     touch: document.querySelector('#touch-controls'),
+    joystick: document.querySelector('#joystick'),
+    joystickKnob: document.querySelector('#joystick-knob'),
     end: document.querySelector('#end-screen'),
     endKicker: document.querySelector('#end-kicker'),
     endTitle: document.querySelector('#end-title'),
@@ -171,6 +173,8 @@
   let player;
   let audioContext;
   let toastTimeout;
+  let lastJumpTap = -Infinity;
+  let joystickPointer = null;
   function loadAssets() {
     for (const [key, src] of Object.entries(assetSources)) {
       const image = new Image();
@@ -959,7 +963,16 @@
       const action = button.dataset.control;
       const press = event => {
         event.preventDefault();
-        if (action === 'jump' && !input.jump) input.jumpPressed = true;
+        if (action === 'jump') {
+          const now = performance.now();
+          if (now - lastJumpTap < 280) {
+            input.dashPressed = true;
+            input.dash = true;
+            navigator.vibrate?.(10);
+          }
+          lastJumpTap = now;
+          if (!input.jump) input.jumpPressed = true;
+        }
         if (action === 'dash' && !input.dash) input.dashPressed = true;
         input[action] = true;
         button.classList.add('is-pressed');
@@ -968,6 +981,7 @@
       const release = event => {
         event.preventDefault();
         input[action] = false;
+        if (action === 'jump') input.dash = false;
         button.classList.remove('is-pressed');
       };
       button.addEventListener('pointerdown', press);
@@ -975,10 +989,49 @@
       button.addEventListener('pointercancel', release);
       button.addEventListener('lostpointercapture', release);
     });
+
+    const setJoystick = event => {
+      if (!ui.joystick || event.pointerId !== joystickPointer) return;
+      const bounds = ui.joystick.getBoundingClientRect();
+      const radius = bounds.width / 2;
+      const rawX = event.clientX - bounds.left - radius;
+      const rawY = event.clientY - bounds.top - radius;
+      const distance = Math.hypot(rawX, rawY) || 1;
+      const max = radius * .55;
+      const ratio = Math.min(1, max / distance);
+      const x = rawX * ratio;
+      const y = rawY * ratio;
+      ui.joystickKnob.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+      input.left = x < -radius * .16;
+      input.right = x > radius * .16;
+    };
+    const resetJoystick = event => {
+      if (event && event.pointerId !== joystickPointer) return;
+      joystickPointer = null;
+      input.left = false;
+      input.right = false;
+      ui.joystick?.classList.remove('is-active');
+      if (ui.joystickKnob) ui.joystickKnob.style.transform = 'translate(-50%, -50%)';
+    };
+    ui.joystick?.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      joystickPointer = event.pointerId;
+      ui.joystick.setPointerCapture?.(event.pointerId);
+      ui.joystick.classList.add('is-active');
+      setJoystick(event);
+    });
+    ui.joystick?.addEventListener('pointermove', setJoystick);
+    ui.joystick?.addEventListener('pointerup', resetJoystick);
+    ui.joystick?.addEventListener('pointercancel', resetJoystick);
+    ui.joystick?.addEventListener('lostpointercapture', resetJoystick);
   }
 
   function clearInput() {
     for (const key of Object.keys(input)) input[key] = false;
+    lastJumpTap = -Infinity;
+    joystickPointer = null;
+    ui.joystick?.classList.remove('is-active');
+    if (ui.joystickKnob) ui.joystickKnob.style.transform = 'translate(-50%, -50%)';
     document.querySelectorAll('.is-pressed').forEach(button => button.classList.remove('is-pressed'));
   }
 

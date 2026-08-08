@@ -160,6 +160,7 @@ h2 { font-size: clamp(3.4rem, 8vw, 7rem); color: var(--orange); }
 .primary-button:hover { filter: brightness(1.12); transform: translateY(-2px) skewX(-2deg); }
 .primary-button:active { transform: translate(.3rem, .3rem) skewX(-2deg); box-shadow: .15rem .15rem 0 #4c245f; }
 .primary-button:focus-visible, .icon-button:focus-visible, .touch-button:focus-visible { outline: 3px solid var(--acid); outline-offset: 4px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 .control-hints {
   display: flex;
@@ -280,11 +281,17 @@ kbd {
 }
 
 .toast--visible { opacity: 1; transform: translate(-50%, 0); }
-.touch-controls { position: absolute; z-index: 12; inset: auto 0 max(.8rem, env(safe-area-inset-bottom)); display: flex; justify-content: space-between; padding: 0 clamp(.8rem, 3vw, 1.6rem); pointer-events: none; }
-.touch-move, .touch-actions { display: flex; gap: .6rem; align-items: end; }
-.touch-button { width: clamp(3.5rem, 10vw, 5rem); aspect-ratio: 1; border: 1px solid rgba(255,255,255,.24); border-radius: 50%; background: rgba(21,12,36,.62); color: white; font-size: 2rem; backdrop-filter: blur(4px); pointer-events: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
-.touch-button--jump { width: clamp(4.2rem, 12vw, 5.8rem); color: var(--night); background: rgba(255,155,66,.82); }
-.touch-button--small { width: clamp(3rem, 8vw, 4rem); font-size: .52rem; font-weight: 800; text-transform: uppercase; }
+.touch-controls { position: absolute; z-index: 12; inset: auto 0 max(.75rem, env(safe-area-inset-bottom)); display: flex; justify-content: space-between; align-items: end; padding: 0 max(1rem, env(safe-area-inset-left)) 0 max(1rem, env(safe-area-inset-right)); pointer-events: none; }
+.touch-move, .touch-actions { display: flex; align-items: end; }
+.joystick { position: relative; width: clamp(6.1rem, 18vw, 8.2rem); aspect-ratio: 1; border: 1px solid rgba(255,255,255,.28); border-radius: 50%; background: radial-gradient(circle at 35% 28%, rgba(255,255,255,.15), rgba(21,12,36,.7) 55%, rgba(8,5,16,.88)); box-shadow: inset 0 0 0 .28rem rgba(255,255,255,.035), 0 .5rem 1.4rem rgba(0,0,0,.28); backdrop-filter: blur(7px); pointer-events: auto; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+.joystick::before, .joystick::after { content: ""; position: absolute; top: 50%; left: 50%; background: rgba(255,255,255,.1); transform: translate(-50%, -50%); pointer-events: none; }
+.joystick::before { width: 68%; height: 1px; }
+.joystick::after { width: 1px; height: 68%; }
+.joystick__knob { position: absolute; top: 50%; left: 50%; width: 46%; aspect-ratio: 1; border: 1px solid rgba(255,255,255,.38); border-radius: 50%; background: radial-gradient(circle at 34% 26%, #584773, #241735 70%); box-shadow: 0 .35rem .8rem rgba(0,0,0,.32), inset 0 0 0 .16rem rgba(255,255,255,.05); transform: translate(-50%, -50%); transition: transform .08s ease-out, filter .1s ease; }
+.joystick.is-active .joystick__knob { filter: brightness(1.25); }
+.touch-button { width: clamp(4.8rem, 14vw, 6.5rem); aspect-ratio: 1; border: 1px solid rgba(255,255,255,.3); border-radius: 50%; background: rgba(21,12,36,.62); color: white; font-size: 2.8rem; backdrop-filter: blur(7px); pointer-events: auto; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.touch-button--jump { display: grid; place-items: center; align-content: center; gap: .12rem; color: var(--night); background: linear-gradient(145deg, #ffb35a, #de7728); box-shadow: inset 0 .12rem 0 rgba(255,255,255,.32), 0 .55rem 1.4rem rgba(0,0,0,.3); }
+.touch-button--jump small { display: block; max-width: 4.4rem; font: 700 .43rem/1.2 "DM Mono", monospace; letter-spacing: .03em; text-transform: uppercase; }
 .touch-button.is-pressed { transform: scale(.9); filter: brightness(1.25); }
 .end-card { margin: auto; padding: clamp(1.2rem, 5vw, 4rem); text-align: center; background: rgba(12,7,22,.8); border: 1px solid rgba(255,255,255,.12); backdrop-filter: blur(8px); }
 .end-card .primary-button { margin-inline: auto; }
@@ -295,7 +302,9 @@ kbd {
   .control-hints { display: none; }
   .title-card { padding-left: clamp(.25rem, 3vw, 1.2rem); width: min(31rem, 88%); }
   .premise { line-height: 1.42; }
-  .moon { right: 6%; top: 8%; opacity: .9; }
+  h1 { font-size: clamp(3.4rem, 7vw, 5.6rem); }
+  .moon { width: min(11rem, 25vw); right: 4%; top: 8%; opacity: .62; }
+  .moon-cat { transform: rotate(-7deg) scale(1.2); }
 }
 
 @media (orientation: portrait) and (max-width: 720px) {
@@ -321,18 +330,19 @@ kbd {
 
   .screen { align-items: center; padding: 1.4rem; }
   .title-card { width: 100%; margin: 0; padding: 0; transform: translateY(-7vh); }
-  h1 { font-size: clamp(4.2rem, 22vw, 6.2rem); }
+  h1 { font-size: clamp(3.5rem, 17vw, 5.1rem); }
   .eyebrow { font-size: .63rem; }
   .premise { max-width: 21rem; font-size: .85rem; }
-  .moon { width: 9.5rem; right: -1rem; top: 10%; opacity: .72; }
+  .moon { width: min(8.2rem, 30vw); right: -1.2rem; top: calc(env(safe-area-inset-top) + .6rem); opacity: .54; }
+  .moon-cat { transform: rotate(-7deg) scale(1.05); }
   .primary-button { width: 100%; }
   .title-footer { bottom: max(1rem, env(safe-area-inset-bottom)); }
   .title-footer > span { max-width: 55%; }
   .hud { grid-template-columns: 1fr 1fr; }
   .objective { position: absolute; top: 3.4rem; left: 50%; width: max-content; max-width: 86vw; transform: translateX(-50%); }
-  .touch-controls { bottom: max(1.4rem, env(safe-area-inset-bottom)); }
-  .touch-button { width: 4.4rem; }
-  .touch-button--jump { width: 5.3rem; }
+  .touch-controls { bottom: max(1.15rem, env(safe-area-inset-bottom)); }
+  .joystick { width: clamp(5.7rem, 24vw, 7.1rem); }
+  .touch-button { width: clamp(4.9rem, 21vw, 6.2rem); }
   .toast { bottom: 27%; max-width: 86%; text-align: center; }
 }
 

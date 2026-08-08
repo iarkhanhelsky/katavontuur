@@ -106,3 +106,12 @@
 - Added `sprite-lab.html`, a standalone animation QA page with animation selection, play/pause, frame stepping, speed control, onion skin, baseline guides, and a complete frame strip.
 - Updated offline shell cache version `v16` with the normalized cat art and animation lab.
 - Verified idle and walk visually in the lab, confirmed the three-frame attack sequence through its accessible state, loaded the normalized sheets in-game, and reran the repacker with identical SHA-256 outputs for all five atlases.
+
+## 2026-08-08 — Mobile controls and Safari pass
+
+- Replaced split left/right and dedicated pounce buttons with a single physical-style horizontal thumb joystick plus a large jump button.
+- Double-tapping jump within 280ms now queues the existing pounce/bounce action; the second tap still registers as jump, preserving forgiving touch play.
+- Added safe-area-aware joystick sizing, captured pointer handling, and reset behavior on interruption or tab blur.
+- Reduced the coarse-pointer title moon, silhouette, and heading scales so Safari tablets and phones retain readable copy and a balanced hero composition.
+- Bumped the offline shell cache to `v17` for the control and mobile layout update.
+- Verified fresh title and gameplay renders at 390×844 portrait and 800×450 touch breakpoint; the joystick and jump control remain outside the playfield and the jump button exposes the bounce instruction accessibly.

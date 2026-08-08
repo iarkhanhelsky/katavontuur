@@ -55,12 +55,15 @@
 
     <div id="touch-controls" class="touch-controls" aria-label="Touch controls" hidden>
       <div class="touch-move">
-        <button class="touch-button" type="button" data-control="left" aria-label="Move left">‹</button>
-        <button class="touch-button" type="button" data-control="right" aria-label="Move right">›</button>
+        <div id="joystick" class="joystick" role="application" aria-label="Movement joystick" aria-describedby="joystick-hint">
+          <span id="joystick-knob" class="joystick__knob" aria-hidden="true"></span>
+        </div>
+        <span id="joystick-hint" class="sr-only">Drag left or right to move the cat.</span>
       </div>
       <div class="touch-actions">
-        <button class="touch-button touch-button--small" type="button" data-control="dash" aria-label="Pounce">Pounce</button>
-        <button class="touch-button touch-button--jump" type="button" data-control="jump" aria-label="Jump">↑</button>
+        <button class="touch-button touch-button--jump" type="button" data-control="jump" aria-label="Jump. Double tap to pounce and bounce.">
+          <span aria-hidden="true">↑</span><small>double tap: bounce</small>
+        </button>
       </div>
     </div>
 
