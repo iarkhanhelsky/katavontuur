@@ -53,3 +53,10 @@
 - Applied the illustrated spike rail to every spike collision zone and changed the opening gap from abstract thorns to a clearly readable iron hazard.
 - Added both atlases to offline shell cache version `v9` and checked their transparency, crop boundaries, and dark-background readability before integration.
 - Verified the live pass at 1280×720 and 390×844: all new assets returned 200, the spike rail stayed readable at both scales, and the pine layer preserved clear platforms and touch controls.
+
+## 2026-08-08 — Pine replacement correction
+
+- Replaced all six remaining legacy crooked-tree scenery placements with the illustrated pine atlas instead of layering the new pines beside them.
+- Alternated the pine silhouettes with horizontal mirroring and varied scales so the repeated sprite feels like a woodland rather than a row of clones.
+- Bumped the offline shell to `v10` so previews immediately receive the corrected scenery layout.
+- Re-verified the opening scene after activating the new service worker; no legacy foreground tree sprites remain, while the distant painted cemetery silhouettes stay part of the background panorama.

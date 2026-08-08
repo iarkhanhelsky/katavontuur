@@ -137,16 +137,16 @@
   ];
 
   const decor = [
-    { x: 540, y: 590, type: 'tree', scale: 1 },
-    { x: 1640, y: 590, type: 'tree', scale: .82 },
-    { x: 2550, y: 590, type: 'tree', scale: .9 },
-    { x: 3650, y: 590, type: 'tree', scale: .95 },
-    { x: 5070, y: 590, type: 'tree', scale: .78 },
-    { x: 6040, y: 590, type: 'tree', scale: .86 },
-    { x: 780, y: 590, type: 'pine', scale: .86 },
-    { x: 2860, y: 535, type: 'pine', scale: .72 },
+    { x: 540, y: 590, type: 'pine', scale: 1 },
+    { x: 1640, y: 590, type: 'pine', scale: .82, flip: true },
+    { x: 2550, y: 590, type: 'pine', scale: .9 },
+    { x: 3650, y: 590, type: 'pine', scale: .95, flip: true },
+    { x: 5070, y: 590, type: 'pine', scale: .78 },
+    { x: 6040, y: 590, type: 'pine', scale: .86, flip: true },
+    { x: 780, y: 590, type: 'pine', scale: .86, flip: true },
+    { x: 2860, y: 535, type: 'pine', scale: .72, flip: true },
     { x: 4120, y: 550, type: 'pine', scale: .8 },
-    { x: 5340, y: 535, type: 'pine', scale: .78 },
+    { x: 5340, y: 535, type: 'pine', scale: .78, flip: true },
     { x: 6250, y: 540, type: 'pine', scale: .74 },
     { x: 210, y: 590, type: 'sign' }, { x: 490, y: 590, type: 'grave' }, { x: 730, y: 590, type: 'pumpkin' },
     { x: 1140, y: 590, type: 'lamp' }, { x: 1710, y: 590, type: 'pumpkin' },
@@ -677,7 +677,9 @@
         const size = (isPine ? 250 : 280) * (item.scale || 1);
         ctx.save();
         ctx.globalAlpha = isPine ? .82 : .88;
-        drawAtlasCell(atlas, 0, 2, item.x - size / 2, item.y - size, size, size);
+        ctx.translate(item.x, item.y);
+        if (item.flip) ctx.scale(-1, 1);
+        drawAtlasCell(atlas, 0, 2, -size / 2, -size, size, size);
         ctx.restore();
       }
     }
