@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nine-lives-heist-v10';
+const CACHE_NAME = 'nine-lives-heist-v11';
 const APP_SHELL = [
   './',
   './index.html',

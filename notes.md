@@ -60,3 +60,11 @@
 - Alternated the pine silhouettes with horizontal mirroring and varied scales so the repeated sprite feels like a woodland rather than a row of clones.
 - Bumped the offline shell to `v10` so previews immediately receive the corrected scenery layout.
 - Re-verified the opening scene after activating the new service worker; no legacy foreground tree sprites remain, while the distant painted cemetery silhouettes stay part of the background panorama.
+
+## 2026-08-08 — Background silhouette correction
+
+- Identified the reported tree as the old code-drawn world backdrop: a translucent rectangle-and-triangle silhouette behind the opening sign, not the illustrated scenery or painted panorama.
+- Removed that entire procedural silhouette layer so its geometric trunks and triangular crowns no longer show through the level artwork.
+- Restored the six illustrated crooked-tree placements and kept the five newer pine placements, preserving both scenery families as requested.
+- Bumped the offline shell to `v11` so the corrected background and mixed woodland arrive together in previews.
+- Verified the opening scene on a fresh uncached origin: the malformed silhouette is gone, while both the crooked tree and nearby pine render behind the route correctly.

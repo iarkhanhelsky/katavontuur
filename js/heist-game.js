@@ -137,12 +137,12 @@
   ];
 
   const decor = [
-    { x: 540, y: 590, type: 'pine', scale: 1 },
-    { x: 1640, y: 590, type: 'pine', scale: .82, flip: true },
-    { x: 2550, y: 590, type: 'pine', scale: .9 },
-    { x: 3650, y: 590, type: 'pine', scale: .95, flip: true },
-    { x: 5070, y: 590, type: 'pine', scale: .78 },
-    { x: 6040, y: 590, type: 'pine', scale: .86, flip: true },
+    { x: 540, y: 590, type: 'tree', scale: 1 },
+    { x: 1640, y: 590, type: 'tree', scale: .82 },
+    { x: 2550, y: 590, type: 'tree', scale: .9 },
+    { x: 3650, y: 590, type: 'tree', scale: .95 },
+    { x: 5070, y: 590, type: 'tree', scale: .78 },
+    { x: 6040, y: 590, type: 'tree', scale: .86 },
     { x: 780, y: 590, type: 'pine', scale: .86, flip: true },
     { x: 2860, y: 535, type: 'pine', scale: .72, flip: true },
     { x: 4120, y: 550, type: 'pine', scale: .8 },
@@ -498,7 +498,6 @@
 
     ctx.save();
     ctx.translate(-game.cameraX + shakeX, shakeY);
-    drawWorldBack();
     drawBackdropDecor();
     drawPlatforms();
     drawHazards();
@@ -550,19 +549,6 @@
       ctx.fill();
     }
     ctx.restore();
-  }
-
-  function drawWorldBack() {
-    ctx.fillStyle = 'rgba(7,5,14,.34)';
-    for (let x = 250; x < WORLD_W; x += 420) {
-      const h = 90 + ((x * 17) % 110);
-      ctx.fillRect(x, 590 - h, 18, h);
-      ctx.beginPath();
-      ctx.moveTo(x - 35, 590 - h + 55);
-      ctx.lineTo(x + 9, 590 - h - 35);
-      ctx.lineTo(x + 50, 590 - h + 55);
-      ctx.fill();
-    }
   }
 
   function drawPlatforms() {
