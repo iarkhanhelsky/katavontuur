@@ -68,7 +68,7 @@ button { font: inherit; }
   background:
     linear-gradient(90deg, rgba(8,5,14,.76), rgba(8,5,14,.14) 55%, rgba(8,5,14,.46)),
     linear-gradient(0deg, rgba(8,5,14,.92), transparent 40%),
-    url('assets/world/BG.png') center/cover;
+    url('assets/backgrounds/heist-manor.webp') center/cover;
 }
 
 .screen::before,
@@ -200,7 +200,17 @@ kbd {
 .moon::before, .moon::after { content: ""; position: absolute; border-radius: 50%; background: rgba(158,94,75,.14); }
 .moon::before { width: 21%; height: 16%; left: 22%; top: 25%; box-shadow: 6.2rem 3.5rem 0 -.3rem rgba(158,94,75,.12); }
 .moon::after { width: 13%; height: 10%; left: 48%; top: 12%; }
-.moon-cat { position: absolute; left: 23%; bottom: -12%; color: #0a0610; font-size: clamp(6rem, 16vw, 14rem); transform: rotate(-12deg); }
+.moon-cat {
+  position: absolute;
+  left: 19%;
+  bottom: -8%;
+  width: 62%;
+  height: 62%;
+  background: url('assets/animations/cat3/idle.png') left center / 700% 100% no-repeat;
+  filter: brightness(.08) saturate(0) drop-shadow(0 8px 2px rgba(0,0,0,.35));
+  transform: rotate(-7deg) scale(1.65);
+  transform-origin: center bottom;
+}
 
 .title-footer {
   position: absolute;
@@ -286,6 +296,44 @@ kbd {
   .title-card { padding-left: clamp(.25rem, 3vw, 1.2rem); width: min(31rem, 88%); }
   .premise { line-height: 1.42; }
   .moon { right: 6%; top: 8%; opacity: .9; }
+}
+
+@media (orientation: portrait) and (max-width: 720px) {
+  #game-shell {
+    width: 100vw;
+    height: 100svh;
+    min-height: 0;
+    background:
+      linear-gradient(rgba(8,5,14,.35), rgba(8,5,14,.9)),
+      url('assets/backgrounds/heist-manor.webp') center/cover;
+  }
+
+  #game {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    transform: translateY(-50%);
+    box-shadow: 0 0 2rem rgba(0,0,0,.6);
+  }
+
+  .screen { align-items: center; padding: 1.4rem; }
+  .title-card { width: 100%; margin: 0; padding: 0; transform: translateY(-7vh); }
+  h1 { font-size: clamp(4.2rem, 22vw, 6.2rem); }
+  .eyebrow { font-size: .63rem; }
+  .premise { max-width: 21rem; font-size: .85rem; }
+  .moon { width: 9.5rem; right: -1rem; top: 10%; opacity: .72; }
+  .primary-button { width: 100%; }
+  .title-footer { bottom: max(1rem, env(safe-area-inset-bottom)); }
+  .title-footer > span { max-width: 55%; }
+  .hud { grid-template-columns: 1fr 1fr; }
+  .objective { position: absolute; top: 3.4rem; left: 50%; width: max-content; max-width: 86vw; transform: translateX(-50%); }
+  .touch-controls { bottom: max(1.4rem, env(safe-area-inset-bottom)); }
+  .touch-button { width: 4.4rem; }
+  .touch-button--jump { width: 5.3rem; }
+  .toast { bottom: 27%; max-width: 86%; text-align: center; }
 }
 
 @media (max-height: 520px) {

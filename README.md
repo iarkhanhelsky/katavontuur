@@ -1,58 +1,28 @@
-# Cat Platformer Prototype
+# Nine Lives, One Heist
 
-A casual HTML5 platformer game prototype built with Phaser.js featuring a controllable cat character with sprite-based animations.
+A polished, mobile-friendly Halloween cat-burglar platformer for the browser. Sneak across a moonlit cemetery and manor, steal at least ten treasures, pounce past raccoon guards, discover the hidden snack cache, and escape through the moon vault.
 
-## Features
+## Play locally
 
-- Cat character with idle, walk, and jump animations
-- Keyboard controls (Arrow keys or WASD)
-- Automatic animation switching based on input state
-- Physics-based movement with gravity and ground collision
-
-## Running the Game
-
-Due to browser CORS restrictions, you cannot open `index.html` directly with the `file://` protocol. You need to run a local web server.
-
-### Option 1: Python Server (Recommended)
-
-```bash
-python3 server.py
-```
-
-Then open `http://localhost:8000/index.html` in your browser.
-
-### Option 2: Python Simple Server
+The project has no build step or package dependencies. Serve the repository as static files:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Then open `http://localhost:8000/index.html` in your browser.
-
-### Option 3: Node.js http-server
-
-```bash
-npx http-server -p 8000
-```
-
-Then open `http://localhost:8000/index.html` in your browser.
+Then open <http://localhost:8000/>.
 
 ## Controls
 
-- **Left Arrow / A**: Move left
-- **Right Arrow / D**: Move right
-- **Space / Up Arrow / W**: Jump
+- Move: `A` / `D` or arrow keys
+- Jump: `W`, up arrow, or space
+- Pounce: `Shift` or `K`
+- Phones and tablets: on-screen multitouch controls appear automatically
 
-## Assets
+The game supports portrait and landscape layouts, although landscape provides the largest play view. It can also be installed as an offline-capable PWA.
 
-All sprite sheets are located in `assets/animations/cat/`:
-- `Idle-Stand-01-Sheet.png` - 8 frames (32x32 each)
-- `Walk-01-HeadHigh-Sheet.png` - 32 frames (32x32 each)
-- `Jump-01-Sheet.png` - 5 frames (32x32 each)
+## Technical notes
 
-## Technical Details
-
-- **Framework**: Phaser.js 3.80.1
-- **Physics**: Arcade Physics
-- **Canvas Size**: 800x600
-- **Animation Frame Rate**: 10-12 fps
+- Vanilla Canvas 2D and browser APIs; no CDN runtime is required.
+- A fixed 1280×720 internal playfield keeps physics deterministic while CSS scales the presentation responsively.
+- Artwork combines the project’s animated cat sheets with a generated storybook manor panorama and lightweight code-rendered scenery, foes, loot, and effects.
