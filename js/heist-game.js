@@ -35,7 +35,7 @@
     sound: true,
     loot: 0,
     totalLoot: 0,
-    checkpoint: { x: 130, y: 490 },
+    checkpoint: { x: 130, y: 522 },
     toastTimer: 0,
     objective: 'Reach the old cemetery gate',
     ghostUnlocked: false,
@@ -56,11 +56,20 @@
     flyingAtlas: 'assets/sprites/flying-atlas.webp',
     pineSpikes: 'assets/sprites/pine-spikes.webp',
     landmarkAtlas: 'assets/sprites/landmark-atlas.webp',
+    platformEdges: 'assets/sprites/platform-edges.webp',
     idle: 'assets/animations/cat3/idle.png',
     walk: 'assets/animations/cat3/walk.png',
     run: 'assets/animations/cat3/run.png',
     jump: 'assets/animations/cat3/jump.png',
     attack: 'assets/animations/cat3/attack.png'
+  };
+
+  const catFrameMetrics = {
+    idle: [[92, 142], [97.5, 155], [63.5, 157], [74, 142], [74, 142], [97.5, 142], [87, 174]],
+    walk: [[73.5, 140], [73, 140], [74, 140], [73, 140], [90.5, 174], [72, 140], [96, 140]],
+    run: [[73.5, 136], [64.5, 154], [72.5, 136], [71.5, 136], [88, 136], [69, 136], [64, 155]],
+    jump: [[84.5, 174], [70, 135], [69.5, 135], [72, 134], [73.5, 135], [77, 135], [73, 135]],
+    attack: [[99, 139], [70.5, 138], [79, 138]]
   };
 
   const platforms = [
@@ -164,8 +173,6 @@
   let player;
   let audioContext;
   let toastTimeout;
-  const patterns = {};
-
   function loadAssets() {
     for (const [key, src] of Object.entries(assetSources)) {
       const image = new Image();
@@ -176,7 +183,7 @@
 
   function makePlayer() {
     return {
-      x: 130, y: 490, w: 52, h: 68, vx: 0, vy: 0,
+      x: 130, y: 522, w: 52, h: 68, vx: 0, vy: 0,
       grounded: false, facing: 1, lives: 3, invulnerable: 0,
       coyote: 0, jumpBuffer: 0, dashTime: 0, dashCooldown: 0,
       anim: 'idle', animTime: 0, frame: 0, landed: false
@@ -194,7 +201,7 @@
     game.shake = 0;
     game.loot = 0;
     game.totalLoot = loot.length;
-    game.checkpoint = { x: 130, y: 490 };
+    game.checkpoint = { x: 130, y: 522 };
     game.objective = 'Reach the old cemetery gate';
     game.ghostUnlocked = false;
     game.vaultHinted = false;
@@ -311,7 +318,7 @@
     if (nextAnim !== player.anim) { player.anim = nextAnim; player.animTime = 0; player.frame = 0; }
     player.animTime += dt;
     const fps = player.anim === 'idle' ? 7 : player.anim === 'jump' ? 9 : 12;
-    player.frame = Math.floor(player.animTime * fps) % 7;
+    player.frame = Math.floor(player.animTime * fps) % catFrameMetrics[player.anim].length;
   }
 
   function moveAndCollide(body, dt) {
@@ -557,65 +564,59 @@
   }
 
   function drawPlatforms() {
+    const body = assets.cobble;
+    const edges = assets.platformEdges;
+    if (!body?.complete || !body.naturalWidth || !edges?.complete || !edges.naturalWidth) return;
     for (const p of platforms) {
-      const palette = platformPalette(p.kind);
-      ctx.fillStyle = palette.side;
-      roundedRect(ctx, p.x, p.y, p.w, p.h, Math.min(10, p.h / 3));
-      ctx.fill();
+      const bodyY = p.y + 17;
+      ctx.save();
+      ctx.filter = platformBodyFilter(p.kind);
+      drawTiledSprite(body, p.x, bodyY, p.w, Math.max(1, p.h - 17), 512, 512);
+      ctx.restore();
+      drawPlatformEdge(edges, p);
+    }
+  }
 
-      const cobblePattern = getPattern('cobble');
-      if (cobblePattern) {
-        ctx.save();
-        roundedRect(ctx, p.x, p.y, p.w, p.h, Math.min(10, p.h / 3));
-        ctx.clip();
-        ctx.globalAlpha = p.kind === 'earth' ? .54 : p.kind === 'roof' ? .6 : .66;
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = cobblePattern;
-        ctx.fillRect(p.x, p.y, p.w, p.h);
-        ctx.restore();
-      }
+  function platformBodyFilter(kind) {
+    if (kind === 'earth') return 'brightness(.7) saturate(.75) hue-rotate(-8deg)';
+    if (kind === 'roof') return 'brightness(.72) saturate(1.15) hue-rotate(16deg)';
+    if (kind === 'courtyard') return 'brightness(.82) saturate(.6)';
+    if (kind === 'vault') return 'brightness(.78) saturate(.92) hue-rotate(10deg)';
+    if (kind === 'manor') return 'brightness(.7) saturate(1.05) hue-rotate(12deg)';
+    if (kind === 'wall') return 'brightness(.76) saturate(.7)';
+    return 'brightness(.88) saturate(.55)';
+  }
 
-      const lipHeight = Math.min(10, p.h);
-      ctx.fillStyle = palette.top;
-      roundedRect(ctx, p.x, p.y, p.w, lipHeight, 5);
-      ctx.fill();
-      ctx.strokeStyle = palette.line;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(p.x + 6, p.y + lipHeight);
-      ctx.lineTo(p.x + p.w - 6, p.y + lipHeight);
-      ctx.stroke();
-
-      if (p.h > 50 && !cobblePattern) {
-        ctx.strokeStyle = 'rgba(255,255,255,.055)';
-        ctx.lineWidth = 2;
-        for (let y = p.y + 36; y < Math.min(VIEW_H + 30, p.y + p.h); y += 34) {
-          ctx.beginPath();
-          ctx.moveTo(p.x, y);
-          ctx.lineTo(p.x + p.w, y);
-          ctx.stroke();
-          for (let x = p.x + ((Math.floor(y / 34) % 2) ? 28 : 0); x < p.x + p.w; x += 58) {
-            ctx.beginPath(); ctx.moveTo(x, y - 20); ctx.lineTo(x, y); ctx.stroke();
-          }
-        }
+  function drawTiledSprite(image, x, y, width, height, tileWidth, tileHeight) {
+    for (let offsetY = 0; offsetY < height; offsetY += tileHeight) {
+      const drawHeight = Math.min(tileHeight, height - offsetY);
+      for (let offsetX = 0; offsetX < width; offsetX += tileWidth) {
+        const drawWidth = Math.min(tileWidth, width - offsetX);
+        ctx.drawImage(
+          image,
+          0, 0,
+          image.naturalWidth * (drawWidth / tileWidth),
+          image.naturalHeight * (drawHeight / tileHeight),
+          x + offsetX, y + offsetY, drawWidth, drawHeight
+        );
       }
     }
   }
 
-  function platformPalette(kind) {
-    if (kind === 'earth') return { top: '#334d3f', side: '#171927', line: '#71915d' };
-    if (kind === 'roof') return { top: '#6b3f70', side: '#24172f', line: '#b86f75' };
-    if (kind === 'courtyard') return { top: '#4f495f', side: '#252030', line: '#858093' };
-    if (kind === 'vault') return { top: '#61536f', side: '#201b2b', line: '#aa8c75' };
-    if (kind === 'manor') return { top: '#4d3b5d', side: '#1d1729', line: '#8b667f' };
-    return { top: '#4c5261', side: '#22202f', line: '#80879a' };
-  }
-
-  function getPattern(key) {
-    const image = assets[key];
-    if (!image?.complete || !image.naturalWidth) return null;
-    patterns[key] ||= ctx.createPattern(image, 'repeat');
-    return patterns[key];
+  function drawPlatformEdge(atlas, platform) {
+    const mossy = platform.kind === 'earth' || platform.kind === 'courtyard';
+    const sourceY = mossy ? 0 : atlas.naturalHeight / 2;
+    const sourceHeight = atlas.naturalHeight / 2;
+    const tileWidth = 512;
+    const edgeHeight = 48;
+    for (let offsetX = 0; offsetX < platform.w; offsetX += tileWidth) {
+      const drawWidth = Math.min(tileWidth, platform.w - offsetX);
+      ctx.drawImage(
+        atlas,
+        0, sourceY, atlas.naturalWidth * (drawWidth / tileWidth), sourceHeight,
+        platform.x + offsetX, platform.y - 8, drawWidth, edgeHeight
+      );
+    }
   }
 
   function drawHazards() {
@@ -805,7 +806,7 @@
       ctx.save();
       ctx.translate(0, Math.sin(enemy.phase * 8) * 1.5);
       ctx.rotate(enemy.stunned > 0 ? -.08 : Math.sin(enemy.phase * 4) * .018);
-      ctx.drawImage(sprite, -59, -47, 118, 118);
+      ctx.drawImage(sprite, -59, -35, 118, 118);
       ctx.restore();
       return;
     }
@@ -851,7 +852,10 @@
       const fw = image.naturalWidth / 7;
       const fh = image.naturalHeight;
       const size = 126;
-      ctx.drawImage(image, player.frame * fw, 0, fw, fh, -size * .53, -size * .6, size, size);
+      const metric = catFrameMetrics[player.anim][player.frame];
+      const drawX = -(metric[0] / fw) * size;
+      const drawY = player.h / 2 + 1 - (metric[1] / fh) * size;
+      ctx.drawImage(image, player.frame * fw, 0, fw, fh, drawX, drawY, size, size);
     } else {
       drawFallbackCat();
     }

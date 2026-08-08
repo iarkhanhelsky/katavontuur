@@ -78,3 +78,15 @@
 - Kept the guard flashlight cone, collision silhouettes, glows, and particles because they provide functional feedback rather than decorative scenery; retained all asset fallbacks for interrupted or slow image loading.
 - Added the landmark atlas to offline shell cache version `v12`.
 - Verified the cleaned opening scene at 1280×720 and 390×844 on a fresh origin; the textured platform edge, illustrated sign, objectives, and touch controls remain clear at both scales.
+
+## 2026-08-08 — Final sprite-only platform polish
+
+- Rebuilt platform rendering around sprites only: the existing seamless moonlit cobblestone now tiles across every platform body without any Canvas rectangles, rounded paths, strokes, or color fills.
+- Generated and chroma-extracted a two-style platform-edge sheet with an illustrated mossy cemetery ledge and an ornate violet manor ledge, then mirrored and repacked both into seamless transparent rows in `platform-edges.webp`.
+- Added organic hanging moss, tiny leaves, chipped coping stones, and restrained brass details through the edge sprites instead of repeated code-drawn decorations.
+- Measured the opaque bounds of every frame in all five cat animation sheets and aligned each frame's visible feet to the collision floor, eliminating levitation and reducing animation jitter.
+- Moved the opening spawn and its restart checkpoint from 32px above the ground directly onto the first platform, so the cat is grounded from the first rendered gameplay frame even when background tabs throttle physics updates.
+- Limited the attack animation to its three populated frames so the cat no longer flashes through empty cells during a pounce.
+- Shifted the raccoon guard sprite down 12px based on its alpha bounds so its rear paw rests on the platform surface while its collision behavior remains unchanged.
+- Added the new platform edge sheet and grounding corrections to offline shell cache version `v14`.
+- Verified the final render at 1280×720 and 390×844 on a fresh origin: cat and raccoon paws meet the moss line, thin platforms remain readable, sprite seams stay unobtrusive, and touch controls retain clear separation.
