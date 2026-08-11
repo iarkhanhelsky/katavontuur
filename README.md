@@ -12,6 +12,10 @@ python3 -m http.server 8000
 
 Then open <http://localhost:8000/>.
 
+Chapter One content is data-driven. Add `?level=1` through `?level=6` to open a
+specific level while authoring, and see [CONTENT_SYSTEM.md](CONTENT_SYSTEM.md)
+for the global item registry, reusable replica blobs, level format, and validator.
+
 To inspect the normalized cat animations independently from game physics, open
 <http://localhost:8000/sprite-lab.html>. The lab supports frame stepping,
 adjustable playback speed, onion skinning, baseline guides, and direct frame selection.

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "id": "level.moon-vault",
+  "name": "The Moon Vault",
+  "locationRef": "location.moon-vault",
+  "bounds": { "x": 0, "y": 0, "width": 4240, "height": 720 },
+  "spawn": { "id": "spawn.start", "position": { "x": 110, "y": 522 }, "facing": "right" },
+  "exit": {
+    "id": "exit.getaway",
+    "variant": "vault",
+    "position": { "x": 4030, "y": 310 },
+    "size": { "width": 150, "height": 160 },
+    "lockedMessage": "The moon lock needs {remaining} more vault treats."
+  },
+  "intro": { "message": "Five vault treats open the lock. Then make the getaway!" },
+  "presentation": { "palette": "vault-violet", "fogOpacity": 0.08 },
+  "rules": { "ghostStartsUnlocked": true },
+  "platforms": [
+    { "id": "ground.a", "position": { "x": -80, "y": 590 }, "size": { "width": 800, "height": 160 }, "kind": "vault" },
+    { "id": "ledge.a", "position": { "x": 570, "y": 470 }, "size": { "width": 170, "height": 32 }, "kind": "stone" },
+    { "id": "ground.b", "position": { "x": 850, "y": 590 }, "size": { "width": 580, "height": 160 }, "kind": "vault" },
+    { "id": "ledge.b", "position": { "x": 1050, "y": 470 }, "size": { "width": 170, "height": 32 }, "kind": "vault" },
+    { "id": "ledge.c", "position": { "x": 1250, "y": 390 }, "size": { "width": 170, "height": 32 }, "kind": "vault" },
+    { "id": "ground.c", "position": { "x": 1560, "y": 590 }, "size": { "width": 680, "height": 160 }, "kind": "vault" },
+    { "id": "ledge.d", "position": { "x": 1740, "y": 470 }, "size": { "width": 170, "height": 32 }, "kind": "vault" },
+    { "id": "secret-ledge", "position": { "x": 1960, "y": 390 }, "size": { "width": 180, "height": 32 }, "kind": "vault" },
+    { "id": "vault-floor", "position": { "x": 2240, "y": 590 }, "size": { "width": 650, "height": 160 }, "kind": "vault" },
+    { "id": "roof.a", "position": { "x": 3020, "y": 535 }, "size": { "width": 300, "height": 185 }, "kind": "vault" },
+    { "id": "ledge.e", "position": { "x": 3180, "y": 420 }, "size": { "width": 170, "height": 32 }, "kind": "vault" },
+    { "id": "ground.exit", "position": { "x": 3440, "y": 590 }, "size": { "width": 800, "height": 160 }, "kind": "vault" },
+    { "id": "ledge.f", "position": { "x": 3620, "y": 470 }, "size": { "width": 170, "height": 32 }, "kind": "stone" },
+    { "id": "ledge.g", "position": { "x": 3840, "y": 380 }, "size": { "width": 190, "height": 32 }, "kind": "stone" }
+  ],
+  "objects": [
+    { "id": "required.1", "type": "loot", "variant": "candy", "tags": ["required"], "position": { "x": 280, "y": 520 } },
+    { "id": "required.2", "type": "loot", "variant": "coin", "tags": ["required"], "position": { "x": 650, "y": 405 } },
+    { "id": "required.3", "type": "loot", "variant": "gem", "tags": ["required"], "position": { "x": 930, "y": 520 } },
+    { "id": "required.4", "type": "loot", "variant": "candy", "tags": ["required"], "position": { "x": 1335, "y": 325 } },
+    { "id": "required.5", "type": "loot", "variant": "coin", "tags": ["required"], "position": { "x": 1825, "y": 405 } },
+    { "id": "optional.1", "type": "loot", "variant": "gem", "tags": ["optional"], "position": { "x": 1135, "y": 405 } },
+    { "id": "secret.final-medallion", "type": "loot", "variant": "moon", "tags": ["secret"], "position": { "x": 2045, "y": 325 } },
+    { "id": "optional.2", "type": "loot", "variant": "candy", "tags": ["optional"], "position": { "x": 2430, "y": 520 } },
+    { "id": "optional.3", "type": "loot", "variant": "gem", "tags": ["optional"], "position": { "x": 2790, "y": 520 } },
+    { "id": "optional.4", "type": "loot", "variant": "coin", "tags": ["optional"], "position": { "x": 3100, "y": 470 } },
+    { "id": "optional.5", "type": "loot", "variant": "candy", "tags": ["optional"], "position": { "x": 3710, "y": 405 } },
+    { "id": "guard.a", "type": "enemy", "variant": "raccoon", "role": "sleepy", "position": { "x": 920, "y": 530 }, "route": { "minX": 880, "maxX": 1320 }, "speed": 68 },
+    { "id": "guard.b", "type": "enemy", "variant": "raccoon", "role": "captain", "position": { "x": 1630, "y": 530 }, "route": { "minX": 1600, "maxX": 2180 }, "speed": 92 },
+    { "id": "guard.c", "type": "enemy", "variant": "raccoon", "role": "fast", "position": { "x": 3070, "y": 475 }, "route": { "minX": 3040, "maxX": 3270 }, "speed": 108 },
+    { "id": "guard.d", "type": "enemy", "variant": "raccoon", "role": "lookout", "position": { "x": 3530, "y": 530 }, "route": { "minX": 3530, "maxX": 3530 }, "speed": 0, "facing": -1 },
+    { "id": "bat.a", "type": "enemy", "variant": "bat", "role": "loop", "position": { "x": 1390, "y": 240 }, "route": { "minX": 1210, "maxX": 1550 }, "speed": 76 },
+    { "id": "bat.b", "type": "enemy", "variant": "bat", "role": "loop", "position": { "x": 3370, "y": 250 }, "route": { "minX": 3200, "maxX": 3630 }, "speed": 92 },
+    { "id": "spikes.a", "type": "hazard", "variant": "spikes", "position": { "x": 970, "y": 568 }, "size": { "width": 70, "height": 22 } },
+    { "id": "spikes.b", "type": "hazard", "variant": "spikes", "position": { "x": 2145, "y": 568 }, "size": { "width": 70, "height": 22 } },
+    { "id": "vault.open", "type": "trigger", "activation": "overlap", "position": { "x": 2500, "y": 380 }, "size": { "width": 220, "height": 210 }, "when": { "counter": "required", "op": "gte", "value": 5 }, "actions": [{ "type": "setFlag", "key": "vaultOpened" }, { "type": "objective", "text": "Make the getaway!" }, { "type": "toast", "text": "Vault open! No new tricks—run, jump, pounce!" }] },
+    { "id": "checkpoint.a", "type": "checkpoint", "position": { "x": 870, "y": 522 }, "label": "Vault wing checkpoint" },
+    { "id": "checkpoint.vault", "type": "checkpoint", "position": { "x": 2260, "y": 522 }, "label": "Moon vault reached" },
+    { "id": "checkpoint.escape", "type": "checkpoint", "position": { "x": 3040, "y": 467 }, "label": "Getaway checkpoint" },
+    { "id": "lamp.a", "type": "decor", "variant": "lamp", "position": { "x": 360, "y": 590 } },
+    { "id": "lamp.b", "type": "decor", "variant": "lamp", "position": { "x": 2300, "y": 590 } },
+    { "id": "lamp.c", "type": "decor", "variant": "lamp", "position": { "x": 3510, "y": 590 } }
+  ],
+  "replicaBlobs": [],
+  "tutorial": [
+    { "id": "tutorial.vault", "prompt": "Five glowing treats open the moon lock", "completeWhen": { "counter": "required", "op": "gte", "value": 5 } },
+    { "id": "tutorial.escape", "prompt": "Vault open — make the getaway!", "startWhen": { "flag": "vaultOpened" }, "completeWhen": { "counter": "checkpoints", "op": "gte", "value": 3 } }
+  ],
+  "goal": {
+    "objective": "Recover 5 vault treats",
+    "requiredLoot": 5,
+    "readyObjective": "Open the moon vault",
+    "readyMessage": "Five treats! The moon lock clicks open.",
+    "completeWhen": { "flag": "vaultOpened" }
+  },
+  "questIds": ["quest.moon-vault.complete", "quest.moon-vault.secret", "quest.moon-vault.challenge"],
+  "badgeConditions": {
+    "secret": { "collected": "secret.final-medallion" },
+    "challenge": { "counter": "loot", "op": "gte", "value": 11 }
+  }
+}

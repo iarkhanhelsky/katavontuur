@@ -1,10 +1,20 @@
-const CACHE_NAME = 'nine-lives-heist-v17';
+const CACHE_NAME = 'nine-lives-heist-v21';
 const APP_SHELL = [
   './',
   './index.html',
   './styles.css',
   './manifest.json',
   './js/heist-game.js',
+  './js/content-system.js',
+  './content/items.json',
+  './content/items.schema.json',
+  './content/replicas.json',
+  './content/levels/level-01-first-steps.json',
+  './content/levels/level-02-treat-trail.json',
+  './content/levels/level-03-guard-trouble.json',
+  './content/levels/level-04-pumpkin-secrets.json',
+  './content/levels/level-05-rooftop-rescue.json',
+  './content/levels/level-06-moon-vault.json',
   './assets/backgrounds/heist-manor.webp',
   './assets/textures/moonlit-cobble.webp',
   './assets/sprites/raccoon-guard.webp',

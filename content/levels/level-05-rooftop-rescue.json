@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "id": "level.rooftop-rescue",
+  "name": "Rooftop Rescue",
+  "locationRef": "location.rooftop-rescue",
+  "bounds": { "x": 0, "y": 0, "width": 3780, "height": 720 },
+  "spawn": { "id": "spawn.start", "position": { "x": 110, "y": 522 }, "facing": "right" },
+  "exit": {
+    "id": "exit.vault-wing",
+    "variant": "gate",
+    "position": { "x": 3600, "y": 430 },
+    "size": { "width": 120, "height": 160 },
+    "lockedMessage": "A tiny ghost still needs rescuing."
+  },
+  "intro": { "message": "Follow the sparkling roof trail. Watch for bat shadows!" },
+  "presentation": { "palette": "rooftop-blue", "fogOpacity": 0.1 },
+  "platforms": [
+    { "id": "ground.a", "position": { "x": -80, "y": 590 }, "size": { "width": 650, "height": 160 }, "kind": "roof" },
+    { "id": "ledge.a", "position": { "x": 430, "y": 478 }, "size": { "width": 170, "height": 32 }, "kind": "roof" },
+    { "id": "ledge.b", "position": { "x": 650, "y": 398 }, "size": { "width": 165, "height": 32 }, "kind": "roof" },
+    { "id": "roof.a", "position": { "x": 855, "y": 520 }, "size": { "width": 260, "height": 200 }, "kind": "roof" },
+    { "id": "roof.b", "position": { "x": 1240, "y": 535 }, "size": { "width": 300, "height": 185 }, "kind": "roof" },
+    { "id": "ledge.c", "position": { "x": 1400, "y": 420 }, "size": { "width": 170, "height": 32 }, "kind": "roof" },
+    { "id": "ledge.d", "position": { "x": 1605, "y": 335 }, "size": { "width": 175, "height": 32 }, "kind": "roof" },
+    { "id": "secret-ledge", "position": { "x": 1810, "y": 270 }, "size": { "width": 180, "height": 32 }, "kind": "roof" },
+    { "id": "roof.c", "position": { "x": 2020, "y": 550 }, "size": { "width": 280, "height": 170 }, "kind": "roof" },
+    { "id": "ground.rescue", "position": { "x": 2420, "y": 590 }, "size": { "width": 470, "height": 160 }, "kind": "manor" },
+    { "id": "ledge.e", "position": { "x": 2820, "y": 470 }, "size": { "width": 180, "height": 32 }, "kind": "roof" },
+    { "id": "ledge.f", "position": { "x": 3050, "y": 390 }, "size": { "width": 180, "height": 32 }, "kind": "roof" },
+    { "id": "ground.exit", "position": { "x": 3260, "y": 590 }, "size": { "width": 520, "height": 160 }, "kind": "manor" }
+  ],
+  "objects": [
+    { "id": "treat.1", "type": "loot", "variant": "candy", "tags": ["optional"], "position": { "x": 270, "y": 520 } },
+    { "id": "treat.2", "type": "loot", "variant": "coin", "tags": ["optional"], "position": { "x": 520, "y": 413 } },
+    { "id": "treat.3", "type": "loot", "variant": "gem", "tags": ["optional"], "position": { "x": 730, "y": 333 } },
+    { "id": "treat.4", "type": "loot", "variant": "candy", "tags": ["optional"], "position": { "x": 950, "y": 455 } },
+    { "id": "treat.5", "type": "loot", "variant": "coin", "tags": ["optional"], "position": { "x": 1475, "y": 355 } },
+    { "id": "secret.moon", "type": "loot", "variant": "moon", "tags": ["secret"], "position": { "x": 1900, "y": 205 } },
+    { "id": "treat.6", "type": "loot", "variant": "candy", "tags": ["optional"], "position": { "x": 2110, "y": 485 } },
+    { "id": "treat.7", "type": "loot", "variant": "coin", "tags": ["optional"], "position": { "x": 2510, "y": 520 } },
+    { "id": "treat.8", "type": "loot", "variant": "gem", "tags": ["optional"], "position": { "x": 2890, "y": 405 } },
+    { "id": "bat.a", "type": "enemy", "variant": "bat", "role": "loop", "position": { "x": 720, "y": 260 }, "route": { "minX": 620, "maxX": 1040 }, "speed": 68 },
+    { "id": "bat.b", "type": "enemy", "variant": "bat", "role": "loop", "position": { "x": 1690, "y": 210 }, "route": { "minX": 1500, "maxX": 2050 }, "speed": 78 },
+    { "id": "bat.c", "type": "enemy", "variant": "bat", "role": "loop", "position": { "x": 3020, "y": 250 }, "route": { "minX": 2860, "maxX": 3240 }, "speed": 88 },
+    { "id": "hazard.rescue-spikes", "type": "hazard", "variant": "spikes", "position": { "x": 2720, "y": 568 }, "size": { "width": 70, "height": 22 } },
+    { "id": "ghost.rescue", "type": "trigger", "activation": "overlap", "position": { "x": 2570, "y": 440 }, "size": { "width": 140, "height": 150 }, "actions": [{ "type": "setFlag", "key": "ghostRescued" }, { "type": "unlockGhost" }, { "type": "objective", "text": "Follow your new friend to the vault wing" }, { "type": "toast", "text": "A tiny ghost has joined the crew!" }] },
+    { "id": "checkpoint.a", "type": "checkpoint", "position": { "x": 1250, "y": 467 }, "label": "First roof crossed" },
+    { "id": "checkpoint.b", "type": "checkpoint", "position": { "x": 2440, "y": 522 }, "label": "Ghost rescue platform" },
+    { "id": "pine.a", "type": "decor", "variant": "pine", "position": { "x": 360, "y": 590 }, "scale": 0.76 },
+    { "id": "lamp.rescue", "type": "decor", "variant": "lamp", "position": { "x": 2490, "y": 590 } }
+  ],
+  "replicaBlobs": [],
+  "tutorial": [
+    { "id": "tutorial.bats", "prompt": "Watch the shadow, then cross!", "startWhen": { "counter": "loot", "op": "gte", "value": 1 }, "completeWhen": { "counter": "checkpoints", "op": "gte", "value": 1 } },
+    { "id": "tutorial.ghost", "prompt": "The ghost points out the next safe landing", "startWhen": { "flag": "ghostRescued" }, "completeWhen": { "counter": "checkpoints", "op": "gte", "value": 2 } }
+  ],
+  "goal": {
+    "objective": "Rescue the ghost and reach the vault wing",
+    "requiredLoot": 0,
+    "completeWhen": { "flag": "ghostRescued" }
+  },
+  "questIds": ["quest.rooftop-rescue.complete", "quest.rooftop-rescue.secret", "quest.rooftop-rescue.challenge"],
+  "badgeConditions": {
+    "secret": { "collected": "secret.moon" },
+    "challenge": { "counter": "rescues", "op": "eq", "value": 0 }
+  }
+}

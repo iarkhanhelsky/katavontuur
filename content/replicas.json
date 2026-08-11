@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "replicas": [
+    {
+      "id": "replica.safe-start",
+      "description": "A readable, obstacle-free opening with a sign and first treat.",
+      "platforms": [
+        { "id": "ground", "position": { "x": 0, "y": 590 }, "size": { "width": 720, "height": 160 }, "kind": "earth" }
+      ],
+      "objects": [
+        { "id": "sign", "type": "decor", "variant": "sign", "position": { "x": 110, "y": 590 } },
+        { "id": "first-treat", "type": "loot", "variant": "candy", "tags": ["required", "tutorial"], "position": { "x": 300, "y": 520 } }
+      ]
+    },
+    {
+      "id": "replica.treat-arc",
+      "description": "Three treats tracing a forgiving jump arc.",
+      "objects": [
+        { "id": "low", "type": "loot", "variant": "candy", "tags": ["required"], "position": { "x": 0, "y": 0 } },
+        { "id": "high", "type": "loot", "variant": "coin", "tags": ["optional"], "position": { "x": 90, "y": -76 } },
+        { "id": "landing", "type": "loot", "variant": "candy", "tags": ["required"], "position": { "x": 185, "y": 0 } }
+      ]
+    },
+    {
+      "id": "replica.checkpoint-lamp",
+      "description": "A safe breather landmark that restores the checkpoint.",
+      "objects": [
+        { "id": "lamp", "type": "decor", "variant": "lamp", "position": { "x": 0, "y": 0 } },
+        { "id": "checkpoint", "type": "checkpoint", "position": { "x": 30, "y": -68 }, "respawnOffset": { "x": 24, "y": 0 }, "label": "Checkpoint! Paws reset." }
+      ]
+    },
+    {
+      "id": "replica.guard-post",
+      "description": "A patrol, lamp, and preview treat packaged as one stealth beat.",
+      "objects": [
+        { "id": "lamp", "type": "decor", "variant": "lamp", "position": { "x": 0, "y": 0 } },
+        { "id": "guard", "type": "enemy", "variant": "raccoon", "role": "sleepy", "position": { "x": 180, "y": -64 }, "route": { "minX": 90, "maxX": 430 }, "speed": 68 },
+        { "id": "lure", "type": "loot", "variant": "coin", "tags": ["optional"], "position": { "x": 330, "y": -132 } }
+      ]
+    },
+    {
+      "id": "replica.pumpkin-cache",
+      "description": "A pounce-open pumpkin with configurable reward contents.",
+      "objects": [
+        { "id": "pumpkin", "type": "decor", "variant": "secret", "position": { "x": 0, "y": 0 } },
+        {
+          "id": "cache",
+          "type": "cache",
+          "position": { "x": 0, "y": -70 },
+          "size": { "width": 150, "height": 120 },
+          "activation": "pounce",
+          "message": "Secret snack cache!",
+          "contents": [
+            { "id": "bonus-left", "type": "loot", "variant": "gem", "tags": ["secret"], "position": { "x": 35, "y": -72 } },
+            { "id": "bonus-right", "type": "loot", "variant": "moon", "tags": ["secret"], "position": { "x": 82, "y": -78 } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "replica.roof-rise",
+      "description": "Three readable roof steps within the normal jump envelope.",
+      "platforms": [
+        { "id": "step-low", "position": { "x": 0, "y": 500 }, "size": { "width": 185, "height": 32 }, "kind": "roof" },
+        { "id": "step-mid", "position": { "x": 225, "y": 420 }, "size": { "width": 175, "height": 32 }, "kind": "roof" },
+        { "id": "step-high", "position": { "x": 435, "y": 340 }, "size": { "width": 180, "height": 32 }, "kind": "roof" }
+      ]
+    }
+  ]
+}

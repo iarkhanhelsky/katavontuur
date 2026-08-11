@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "id": "level.first-steps",
+  "name": "First Steps",
+  "locationRef": "location.first-steps",
+  "bounds": { "x": 0, "y": 0, "width": 2460, "height": 720 },
+  "spawn": { "id": "spawn.start", "position": { "x": 130, "y": 522 }, "facing": "right" },
+  "exit": {
+    "id": "exit.cemetery-gate",
+    "variant": "gate",
+    "position": { "x": 2280, "y": 430 },
+    "size": { "width": 120, "height": 160 },
+    "lockedMessage": "The gate is right here—hop through!"
+  },
+  "intro": { "message": "The treats point the way. Follow their sparkle!" },
+  "presentation": { "palette": "cemetery-blue", "fogOpacity": 0.1, "lampGlow": 0.9 },
+  "platforms": [
+    { "id": "platform.jump-practice", "position": { "x": 520, "y": 480 }, "size": { "width": 190, "height": 32 }, "kind": "stone" },
+    { "id": "ground.intro-tail", "position": { "x": 640, "y": 590 }, "size": { "width": 600, "height": 160 }, "kind": "earth" },
+    { "id": "ground.gate-side", "position": { "x": 1370, "y": 590 }, "size": { "width": 1170, "height": 160 }, "kind": "earth" }
+  ],
+  "objects": [
+    { "id": "grave.intro", "type": "decor", "variant": "grave", "position": { "x": 410, "y": 590 } },
+    { "id": "tree.intro", "type": "decor", "variant": "tree", "position": { "x": 790, "y": 590 }, "scale": 0.82 },
+    { "id": "lamp.gap", "type": "decor", "variant": "lamp", "position": { "x": 1110, "y": 590 } },
+    { "id": "treat.gate", "type": "loot", "variant": "candy", "tags": ["optional"], "position": { "x": 2150, "y": 520 } }
+  ],
+  "replicaBlobs": [
+    { "id": "opening", "replicaId": "replica.safe-start", "at": { "x": -80, "y": 0 } },
+    {
+      "id": "gap-trail",
+      "replicaId": "replica.treat-arc",
+      "at": { "x": 1080, "y": 520 },
+      "overrides": {
+        "low": { "tags": ["optional", "tutorial"] },
+        "landing": { "tags": ["optional", "tutorial"] }
+      }
+    },
+    { "id": "tutorial-cache", "replicaId": "replica.pumpkin-cache", "at": { "x": 1750, "y": 590 } },
+    {
+      "id": "gate-checkpoint",
+      "replicaId": "replica.checkpoint-lamp",
+      "at": { "x": 2070, "y": 590 },
+      "overrides": { "checkpoint": { "label": "Cemetery gate reached!" } }
+    }
+  ],
+  "tutorial": [
+    { "id": "tutorial.move", "prompt": "Follow the candy!", "completeWhen": { "input": "move" } },
+    { "id": "tutorial.collect", "prompt": "Recover the town's treat!", "startWhen": { "input": "move" }, "completeWhen": { "collected": "opening.first-treat" } },
+    { "id": "tutorial.jump", "prompt": "Jump up!", "startWhen": { "collected": "opening.first-treat" }, "completeWhen": { "input": "jump" } },
+    { "id": "tutorial.pounce", "prompt": "Pounce through the glowing pumpkin!", "startWhen": { "counter": "loot", "op": "gte", "value": 3 }, "completeWhen": { "flag": "secretFound" } }
+  ],
+  "goal": {
+    "objective": "Reach the cemetery gate",
+    "requiredLoot": 0,
+    "completeWhen": { "counter": "loot", "op": "gte", "value": 0 }
+  },
+  "questIds": ["quest.first-steps.complete", "quest.first-steps.secret", "quest.first-steps.challenge"],
+  "badgeConditions": {
+    "secret": { "flag": "secretFound" },
+    "challenge": { "counter": "loot", "op": "gte", "value": 7 }
+  }
+}

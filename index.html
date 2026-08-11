@@ -23,7 +23,7 @@
       <div class="title-card">
         <p class="eyebrow">A very quiet burglary</p>
         <h1 id="game-title"><span>Nine Lives,</span> One Heist</h1>
-        <p class="premise">The Count stole every treat in town. Sneak into his moonlit manor, fill your loot bag, and try not to wake the gargoyles.</p>
+        <p class="premise">The Count stole every treat in town. Sneak into his moonlit manor, recover the haul, and try not to wake the gargoyles.</p>
         <button id="start-button" class="primary-button" type="button">
           <span>Begin the heist</span><small>Enter · Space · Tap</small>
         </button>
@@ -34,7 +34,7 @@
         </div>
       </div>
       <div class="title-footer">
-        <span>Cat burglar license: pending</span>
+        <span>Official treat recovery: pending</span>
         <button id="sound-toggle" class="icon-button" type="button" aria-label="Toggle sound" aria-pressed="true">Sound on</button>
       </div>
     </section>
@@ -61,8 +61,11 @@
         <span id="joystick-hint" class="sr-only">Drag left or right to move the cat.</span>
       </div>
       <div class="touch-actions">
-        <button class="touch-button touch-button--jump" type="button" data-control="jump" aria-label="Jump. Double tap to pounce and bounce.">
-          <span aria-hidden="true">↑</span><small>double tap: bounce</small>
+        <button class="touch-button touch-button--pounce" type="button" data-control="dash" aria-label="Pounce">
+          <span aria-hidden="true">↠</span><small>Pounce</small>
+        </button>
+        <button class="touch-button touch-button--jump" type="button" data-control="jump" aria-label="Jump">
+          <span aria-hidden="true">↑</span><small>Jump</small>
         </button>
       </div>
     </div>
@@ -72,12 +75,16 @@
         <p id="end-kicker" class="eyebrow">Heist complete</p>
         <h2 id="end-title">Clean getaway!</h2>
         <p id="end-summary"></p>
-        <button id="restart-button" class="primary-button" type="button"><span>Heist again</span><small>Try for a better haul</small></button>
+        <div class="end-actions">
+          <button id="continue-button" class="primary-button" type="button"><span>Continue</span><small>Next level</small></button>
+          <button id="replay-button" class="secondary-button" type="button">Replay this level</button>
+        </div>
       </div>
     </section>
   </main>
 
   <noscript>This game needs JavaScript enabled to run.</noscript>
+  <script src="js/content-system.js" defer></script>
   <script src="js/heist-game.js" defer></script>
 </body>
 </html>

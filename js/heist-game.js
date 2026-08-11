@@ -19,13 +19,14 @@
     endKicker: document.querySelector('#end-kicker'),
     endTitle: document.querySelector('#end-title'),
     endSummary: document.querySelector('#end-summary'),
-    restart: document.querySelector('#restart-button')
+    continue: document.querySelector('#continue-button'),
+    replay: document.querySelector('#replay-button')
   };
 
   const VIEW_W = canvas.width;
   const VIEW_H = canvas.height;
-  const WORLD_W = 7480;
-  const REQUIRED_LOOT = 10;
+  let WORLD_W = 7480;
+  let REQUIRED_LOOT = 10;
   const GRAVITY = 2150;
   const input = { left: false, right: false, jump: false, dash: false, jumpPressed: false, dashPressed: false };
   const game = {
@@ -44,7 +45,8 @@
     vaultHinted: false,
     secretOpened: false,
     endStarted: false,
-    guardsBonked: 0
+    guardsBonked: 0,
+    suspicion: 0
   };
 
   const assets = {};
@@ -72,99 +74,23 @@
   const CAT_FOOT_Y = 178;
   const CAT_DRAW_SIZE = 139;
 
-  const platforms = [
-    { x: -80, y: 590, w: 930, h: 160, kind: 'earth' },
-    { x: 670, y: 478, w: 170, h: 34, kind: 'stone' },
-    { x: 885, y: 415, w: 150, h: 32, kind: 'stone' },
-    { x: 1035, y: 590, w: 760, h: 160, kind: 'earth' },
-    { x: 1180, y: 480, w: 190, h: 32, kind: 'stone' },
-    { x: 1430, y: 398, w: 175, h: 32, kind: 'stone' },
-    { x: 1810, y: 550, w: 340, h: 200, kind: 'wall' },
-    { x: 1980, y: 445, w: 175, h: 34, kind: 'wall' },
-    { x: 2190, y: 590, w: 500, h: 160, kind: 'courtyard' },
-    { x: 2380, y: 470, w: 155, h: 31, kind: 'stone' },
-    { x: 2730, y: 535, w: 250, h: 215, kind: 'wall' },
-    { x: 2940, y: 428, w: 150, h: 32, kind: 'stone' },
-    { x: 3130, y: 590, w: 710, h: 160, kind: 'courtyard' },
-    { x: 3260, y: 475, w: 160, h: 32, kind: 'stone' },
-    { x: 3470, y: 390, w: 160, h: 32, kind: 'stone' },
-    { x: 3860, y: 550, w: 300, h: 200, kind: 'roof' },
-    { x: 4030, y: 432, w: 160, h: 32, kind: 'roof' },
-    { x: 4225, y: 340, w: 165, h: 32, kind: 'roof' },
-    { x: 4415, y: 460, w: 170, h: 32, kind: 'roof' },
-    { x: 4610, y: 590, w: 630, h: 160, kind: 'manor' },
-    { x: 4720, y: 455, w: 160, h: 32, kind: 'roof' },
-    { x: 4940, y: 370, w: 175, h: 32, kind: 'roof' },
-    { x: 5280, y: 535, w: 280, h: 215, kind: 'manor' },
-    { x: 5480, y: 420, w: 170, h: 32, kind: 'roof' },
-    { x: 5680, y: 590, w: 470, h: 160, kind: 'vault' },
-    { x: 5870, y: 470, w: 160, h: 32, kind: 'stone' },
-    { x: 6190, y: 540, w: 250, h: 210, kind: 'vault' },
-    { x: 6400, y: 430, w: 165, h: 32, kind: 'vault' },
-    { x: 6600, y: 590, w: 880, h: 160, kind: 'vault' },
-    { x: 6810, y: 465, w: 160, h: 32, kind: 'stone' },
-    { x: 7040, y: 375, w: 190, h: 32, kind: 'stone' }
-  ];
-
-  const hazardsTemplate = [
-    { x: 850, y: 570, w: 185, h: 22, type: 'spikes' },
-    { x: 2690, y: 568, w: 40, h: 22, type: 'spikes' },
-    { x: 3840, y: 568, w: 26, h: 22, type: 'spikes' },
-    { x: 4565, y: 568, w: 45, h: 22, type: 'spikes' },
-    { x: 6150, y: 568, w: 40, h: 22, type: 'spikes' },
-    { x: 6440, y: 516, w: 80, h: 18, type: 'spikes' }
-  ];
-
-  const lootTemplate = [
-    { x: 310, y: 520, type: 'candy' }, { x: 740, y: 412, type: 'coin' },
-    { x: 955, y: 350, type: 'gem' }, { x: 1290, y: 415, type: 'candy' },
-    { x: 1510, y: 330, type: 'coin' }, { x: 2030, y: 380, type: 'gem' },
-    { x: 2470, y: 405, type: 'candy' }, { x: 2820, y: 470, type: 'coin' },
-    { x: 3020, y: 365, type: 'gem' }, { x: 3340, y: 410, type: 'candy' },
-    { x: 3550, y: 325, type: 'coin' }, { x: 4105, y: 365, type: 'gem' },
-    { x: 4310, y: 275, type: 'candy' }, { x: 4500, y: 395, type: 'coin' },
-    { x: 4800, y: 390, type: 'gem' }, { x: 5030, y: 305, type: 'candy' },
-    { x: 5550, y: 355, type: 'coin' }, { x: 5950, y: 405, type: 'gem' },
-    { x: 6480, y: 365, type: 'candy' }, { x: 6890, y: 400, type: 'gem' },
-    { x: 7135, y: 310, type: 'moon' }
-  ];
-
-  const enemyTemplate = [
-    { x: 1210, y: 526, min: 1080, max: 1710, speed: 72, type: 'raccoon' },
-    { x: 2260, y: 526, min: 2200, max: 2630, speed: 82, type: 'raccoon' },
-    { x: 3190, y: 526, min: 3140, max: 3780, speed: 88, type: 'raccoon' },
-    { x: 3990, y: 270, min: 3940, max: 4500, speed: 65, type: 'bat' },
-    { x: 4660, y: 526, min: 4630, max: 5180, speed: 95, type: 'raccoon' },
-    { x: 5400, y: 250, min: 5300, max: 6100, speed: 70, type: 'bat' },
-    { x: 5720, y: 526, min: 5700, max: 6100, speed: 102, type: 'raccoon' },
-    { x: 6650, y: 526, min: 6620, max: 7180, speed: 112, type: 'raccoon' }
-  ];
-
-  const checkpoints = [
-    { x: 1870, y: 480, label: 'Cemetery gate cracked' },
-    { x: 3900, y: 480, label: 'Made it to the rooftops' },
-    { x: 5705, y: 520, label: 'Vault wing reached' }
-  ];
-
-  const decor = [
-    { x: 540, y: 590, type: 'tree', scale: 1 },
-    { x: 1640, y: 590, type: 'tree', scale: .82 },
-    { x: 2550, y: 590, type: 'tree', scale: .9 },
-    { x: 3650, y: 590, type: 'tree', scale: .95 },
-    { x: 5070, y: 590, type: 'tree', scale: .78 },
-    { x: 6040, y: 590, type: 'tree', scale: .86 },
-    { x: 780, y: 590, type: 'pine', scale: .86, flip: true },
-    { x: 2860, y: 535, type: 'pine', scale: .72, flip: true },
-    { x: 4120, y: 550, type: 'pine', scale: .8 },
-    { x: 5340, y: 535, type: 'pine', scale: .78, flip: true },
-    { x: 6250, y: 540, type: 'pine', scale: .74 },
-    { x: 210, y: 590, type: 'sign' }, { x: 490, y: 590, type: 'grave' }, { x: 730, y: 590, type: 'pumpkin' },
-    { x: 1140, y: 590, type: 'lamp' }, { x: 1710, y: 590, type: 'pumpkin' },
-    { x: 2240, y: 590, type: 'lamp' }, { x: 2600, y: 590, type: 'grave' }, { x: 2350, y: 590, type: 'pumpkin' },
-    { x: 3200, y: 590, type: 'secret' }, { x: 3720, y: 590, type: 'pumpkin' },
-    { x: 4690, y: 590, type: 'lamp' }, { x: 5160, y: 590, type: 'pumpkin' }, { x: 4870, y: 590, type: 'grave' },
-    { x: 5750, y: 590, type: 'lamp' }, { x: 6710, y: 590, type: 'lamp' }, { x: 6870, y: 590, type: 'grave' }
-  ];
+  let platforms = [];
+  let hazardsTemplate = [];
+  let lootTemplate = [];
+  let enemyTemplate = [];
+  let checkpoints = [];
+  let decor = [];
+  let caches = [];
+  let triggers = [];
+  let activeLevel = null;
+  let contentSystem = null;
+  const runState = {
+    counters: {},
+    flags: {},
+    collected: new Set(),
+    reached: new Set(),
+    inputs: new Set()
+  };
 
   let hazards = [];
   let loot = [];
@@ -184,8 +110,9 @@
   }
 
   function makePlayer() {
+    const spawn = activeLevel?.spawn?.position || { x: 130, y: 522 };
     return {
-      x: 130, y: 522, w: 52, h: 68, vx: 0, vy: 0,
+      x: spawn.x, y: spawn.y, w: 52, h: 68, vx: 0, vy: 0,
       grounded: false, facing: 1, lives: 3, invulnerable: 0,
       coyote: 0, jumpBuffer: 0, dashTime: 0, dashCooldown: 0,
       anim: 'idle', animTime: 0, frame: 0, landed: false
@@ -196,25 +123,64 @@
     player = makePlayer();
     hazards = hazardsTemplate.map(item => ({ ...item }));
     loot = lootTemplate.map(item => ({ ...item, taken: false, bob: Math.random() * Math.PI * 2 }));
-    enemies = enemyTemplate.map((enemy, index) => ({ ...enemy, dir: index % 2 ? -1 : 1, stunned: 0, phase: index * 1.7 }));
+    enemies = enemyTemplate.map(createEnemyRuntime);
     particles = [];
     game.time = 0;
     game.cameraX = 0;
     game.shake = 0;
     game.loot = 0;
-    game.totalLoot = loot.length;
-    game.checkpoint = { x: 130, y: 522 };
-    game.objective = 'Reach the old cemetery gate';
-    game.ghostUnlocked = false;
+    game.totalLoot = activeLevel?.collectibleCount ?? loot.length;
+    game.checkpoint = { x: player.x, y: player.y };
+    game.objective = activeLevel?.goal?.objective || 'Reach the old cemetery gate';
+    game.ghostUnlocked = activeLevel?.rules?.ghostStartsUnlocked || false;
     game.vaultHinted = false;
     game.secretOpened = false;
     game.endStarted = false;
     game.guardsBonked = 0;
+    game.suspicion = 0;
+    game.tutorialIndex = 0;
+    game.tutorialShown = null;
+    game.earnedBadges = [];
+    runState.counters = { loot: 0, guardsBonked: 0, rescues: 0, hazardsHit: 0, checkpoints: 0 };
+    runState.flags = {};
+    runState.collected.clear();
+    runState.reached.clear();
+    runState.inputs.clear();
     checkpoints.forEach(checkpoint => { checkpoint.reached = false; });
+    caches.forEach(cache => { cache.opened = false; });
+    triggers.forEach(trigger => { trigger.fired = false; });
     updateHud();
   }
 
+  function createEnemyRuntime(enemy, index) {
+    const routeStart = Number.isFinite(enemy.min) ? enemy.min : enemy.x;
+    const routeEnd = Number.isFinite(enemy.max) ? enemy.max : enemy.x;
+    const min = Math.min(routeStart, routeEnd);
+    const max = Math.max(routeStart, routeEnd);
+    const speed = Math.max(0, Number(enemy.speed) || 0);
+    const stationary = speed === 0 || max - min < 1;
+    let dir = enemy.facing === -1 || enemy.facing === 1 ? enemy.facing : (index % 2 ? -1 : 1);
+    const x = clamp(enemy.x, min, max);
+    if (!stationary && x <= min && dir < 0) dir = 1;
+    if (!stationary && x >= max && dir > 0) dir = -1;
+    return {
+      ...enemy,
+      x,
+      min,
+      max,
+      speed: stationary ? 0 : speed,
+      stationary,
+      dir,
+      stunned: 0,
+      phase: index * 1.7
+    };
+  }
+
   function beginGame() {
+    if (!activeLevel) {
+      showToast('The level book is still opening…');
+      return;
+    }
     ensureAudio();
     resetGame();
     game.mode = 'playing';
@@ -224,8 +190,43 @@
     ui.hud.hidden = false;
     const touchDevice = matchMedia('(pointer: coarse)').matches || innerWidth < 820;
     ui.touch.hidden = !touchDevice;
-    showToast('Keep low. Look innocent. Steal everything.', 2600);
+    showToast(activeLevel.intro?.message || 'Keep low. Look innocent. Recover every treat.', 2600);
     blip(390, 0.08, 'triangle', 0.05);
+  }
+
+  function getNextLocation() {
+    if (!contentSystem || !activeLevel) return null;
+    const currentOrder = activeLevel.location?.order || 0;
+    return contentSystem.getLocations().find(location => location.order > currentOrder) || null;
+  }
+
+  async function continueCampaign() {
+    if (game.mode === 'lost') {
+      beginGame();
+      return;
+    }
+    const nextLocation = getNextLocation();
+    if (!nextLocation) {
+      beginGame();
+      return;
+    }
+    ui.continue.disabled = true;
+    const label = ui.continue.querySelector('span');
+    if (label) label.textContent = 'Loading…';
+    try {
+      const nextLevel = await contentSystem.loadLevel(nextLocation.id);
+      applyLevelContent(nextLevel);
+      const url = new URL(location.href);
+      url.searchParams.set('level', String(nextLocation.order));
+      history.replaceState({}, '', url);
+      beginGame();
+    } catch (error) {
+      console.error(error);
+      showToast('The next level could not load. Try again.', 3000);
+      if (label) label.textContent = `Continue: ${nextLocation.name}`;
+    } finally {
+      ui.continue.disabled = false;
+    }
   }
 
   function finishGame(success) {
@@ -237,8 +238,14 @@
     ui.end.hidden = false;
     ui.endKicker.textContent = success ? 'Heist complete' : 'Busted… sort of';
     ui.endTitle.textContent = success ? 'Clean getaway!' : 'Nine lives spent';
+    if (success) awardLevelRewards();
+    const nextLocation = success ? getNextLocation() : null;
+    ui.continue.querySelector('span').textContent = !success ? 'Try again' : nextLocation ? `Continue: ${nextLocation.name}` : 'Replay finale';
+    ui.continue.querySelector('small').textContent = !success ? 'Restart this level' : nextLocation ? 'Adventure paw unlocked it' : 'Chapter complete';
+    ui.replay.hidden = !nextLocation;
+    const paws = game.earnedBadges.length ? ` Paws: ${game.earnedBadges.join(', ')}.` : '';
     ui.endSummary.textContent = success
-      ? `You lifted ${game.loot} treasures, embarrassed ${game.guardsBonked} guards, and escaped with your whiskers intact.`
+      ? `You recovered ${game.loot} treasures and embarrassed ${game.guardsBonked} guards.${paws}`
       : `The manor keeps its secrets tonight—but cat burglars always land on their feet.`;
     requestAnimationFrame(() => ui.end.classList.add('screen--visible'));
     chord(success ? [523, 659, 784] : [220, 185, 147]);
@@ -255,6 +262,8 @@
     collectNearbyLoot();
     updateCheckpoints();
     updateSecrets();
+    updateTriggers();
+    updateTutorial();
 
     const targetCamera = clamp(player.x - VIEW_W * 0.34, 0, WORLD_W - VIEW_W);
     game.cameraX += (targetCamera - game.cameraX) * Math.min(1, dt * 5.2);
@@ -271,6 +280,9 @@
     input.jumpPressed = false;
 
     const axis = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+    if (axis) runState.inputs.add('move');
+    if (input.jumpPressed) runState.inputs.add('jump');
+    if (input.dashPressed) runState.inputs.add('pounce');
     if (axis) player.facing = axis;
 
     if (input.dashPressed && player.dashCooldown <= 0) {
@@ -312,7 +324,10 @@
     if (player.y > VIEW_H + 170) hurtPlayer('That was not the quiet route.');
 
     for (const hazard of hazards) {
-      if (overlap(player, hazard)) hurtPlayer('Ouch. Haunted landscaping.');
+      if (overlap(player, hazard)) {
+        runState.counters.hazardsHit += 1;
+        hurtPlayer('Ouch. Haunted landscaping.');
+      }
     }
 
     const speed = Math.abs(player.vx);
@@ -349,15 +364,25 @@
   }
 
   function updateEnemies(dt) {
+    let seenByFlashlight = false;
     for (const enemy of enemies) {
       enemy.phase += dt;
       enemy.stunned = Math.max(0, enemy.stunned - dt);
-      if (enemy.stunned <= 0) {
-        enemy.x += enemy.speed * enemy.dir * dt;
-        if (enemy.x <= enemy.min || enemy.x >= enemy.max) {
-          enemy.dir *= -1;
-          enemy.x = clamp(enemy.x, enemy.min, enemy.max);
+      if (enemy.stunned <= 0 && !enemy.stationary) {
+        const nextX = enemy.x + enemy.speed * enemy.dir * dt;
+        if (nextX <= enemy.min) {
+          enemy.x = enemy.min;
+          enemy.dir = 1;
+        } else if (nextX >= enemy.max) {
+          enemy.x = enemy.max;
+          enemy.dir = -1;
+        } else {
+          enemy.x = nextX;
         }
+      }
+
+      if (enemy.type === 'raccoon' && enemy.stunned <= 0 && insideFlashlight(enemy)) {
+        seenByFlashlight = true;
       }
 
       const hitbox = enemy.type === 'bat'
@@ -369,6 +394,8 @@
         if (!enemy.bonked) {
           enemy.bonked = true;
           game.guardsBonked += 1;
+          runState.counters.guardsBonked = game.guardsBonked;
+          runState.flags[`bonked:${enemy.id}`] = true;
         }
         enemy.stunned = 4.5;
         player.vy = -410;
@@ -380,6 +407,22 @@
         hurtPlayer('Spotted! Relocating paws…');
       }
     }
+    game.suspicion = clamp(game.suspicion + (seenByFlashlight ? dt / 1.15 : -dt / .5), 0, 1);
+    if (game.suspicion >= 1) {
+      game.suspicion = 0;
+      runState.counters.fullDetections = (runState.counters.fullDetections || 0) + 1;
+      hurtPlayer('Flashlight full! Relocating paws…');
+    }
+  }
+
+  function insideFlashlight(enemy) {
+    const centerX = player.x + player.w / 2;
+    const centerY = player.y + player.h / 2;
+    const direction = enemy.dir || 1;
+    const dx = (centerX - enemy.x) * direction;
+    const dy = Math.abs(centerY - (enemy.y + 18));
+    const length = enemy.role === 'lookout' ? 230 : enemy.role === 'nervous' ? 155 : 175;
+    return dx > 18 && dx < length && dy < 28 + dx * .24;
   }
 
   function collectNearbyLoot() {
@@ -390,19 +433,22 @@
       if (dx * dx + dy * dy > 52 * 52) continue;
       item.taken = true;
       game.loot += 1;
+      runState.collected.add(item.id);
+      runState.counters.loot = game.loot;
+      for (const tag of item.tags || []) runState.counters[tag] = (runState.counters[tag] || 0) + 1;
       burst(item.x, item.y, item.type === 'gem' ? '#dca5ff' : '#ffb057', 12, 0);
       blip(620 + game.loot * 18, 0.08, 'sine', 0.035);
       updateHud();
       if (game.loot === 1) showToast('One shiny thing. Entirely according to plan.');
       if (game.loot === 5) showToast('Loot bag: suspiciously jingly.');
-      if (game.loot === 7 && !game.ghostUnlocked) {
+      if (activeLevel?.rules?.ghostUnlockLootCount === game.loot && !game.ghostUnlocked) {
         game.ghostUnlocked = true;
         showToast('A tiny ghost has joined the crew!', 2800);
         chord([440, 554, 659]);
       }
-      if (game.loot === REQUIRED_LOOT) {
-        game.objective = 'The moon vault is open — make the getaway!';
-        showToast('Enough loot! The vault lock clicks open.', 2800);
+      if (REQUIRED_LOOT > 0 && runState.counters.required === REQUIRED_LOOT) {
+        game.objective = activeLevel?.goal?.readyObjective || 'The way forward is open — make the getaway!';
+        showToast(activeLevel?.goal?.readyMessage || 'Enough treats! The lock clicks open.', 2800);
         updateHud();
       }
     }
@@ -412,37 +458,137 @@
     for (const checkpoint of checkpoints) {
       if (checkpoint.reached || player.x < checkpoint.x) continue;
       checkpoint.reached = true;
-      game.checkpoint = { x: checkpoint.x + 20, y: checkpoint.y };
+      game.checkpoint = {
+        x: checkpoint.x + (checkpoint.respawnOffset?.x || 20),
+        y: checkpoint.y + (checkpoint.respawnOffset?.y || 0)
+      };
+      runState.reached.add(checkpoint.id);
+      runState.counters.checkpoints += 1;
       showToast(checkpoint.label);
-      if (checkpoint.x < 2000) game.objective = 'Cross the pumpkin courtyard';
-      else if (checkpoint.x < 5000) game.objective = 'Sneak over the manor roofs';
-      else game.objective = game.loot >= REQUIRED_LOOT ? 'Reach the open moon vault' : `Find ${REQUIRED_LOOT - game.loot} more treasures`;
+      if (checkpoint.objective) game.objective = checkpoint.objective;
       updateHud();
     }
 
-    if (player.x > 7120 && player.y < 430) {
-      if (game.loot >= REQUIRED_LOOT) finishGame(true);
-      else if (!game.vaultHinted) {
+    const exit = activeLevel?.exit;
+    if (exit) {
+      const zone = { x: exit.position.x, y: exit.position.y, w: exit.size?.width || 120, h: exit.size?.height || 160 };
+      if (overlap(player, zone) && goalRequirementsMet()) finishGame(true);
+      else if (overlap(player, zone) && !game.vaultHinted) {
         game.vaultHinted = true;
-        showToast(`Vault needs ${REQUIRED_LOOT - game.loot} more treasures. Rude.`, 2800);
+        const remaining = Math.max(0, REQUIRED_LOOT - (runState.counters.required || 0));
+        showToast(exit.lockedMessage?.replace('{remaining}', remaining) || `This way needs ${remaining} more treats.`, 2800);
       }
     }
   }
 
   function updateSecrets() {
-    if (!game.secretOpened && player.dashTime > 0 && player.x > 3120 && player.x < 3260 && player.y > 450) {
+    if (player.dashTime <= 0) return;
+    for (const cache of caches) {
+      if (cache.opened) continue;
+      const size = cache.size || { width: 150, height: 120 };
+      const zone = { x: cache.x - size.width / 2, y: cache.y, w: size.width, h: size.height };
+      if (!overlap(player, zone)) continue;
+      cache.opened = true;
       game.secretOpened = true;
-      const bonus = [
-        { x: 3255, y: 515, type: 'moon', taken: false, bob: 0 },
-        { x: 3300, y: 520, type: 'gem', taken: false, bob: 1 },
-        { x: 3345, y: 515, type: 'moon', taken: false, bob: 2 }
-      ];
+      runState.flags.secretFound = true;
+      runState.flags[`opened:${cache.id}`] = true;
+      const bonus = (cache.contents || []).map((item, index) => ({
+        id: item.id,
+        x: item.position.x,
+        y: item.position.y,
+        type: item.variant || 'candy',
+        tags: item.tags || ['secret'],
+        taken: false,
+        bob: index
+      }));
       loot.push(...bonus);
-      game.totalLoot += bonus.length;
-      burst(3200, 530, '#ff9b42', 20, 0);
-      showToast('Secret snack cache! Raccoons are excellent architects.', 3000);
+      burst(cache.x, cache.y, '#ff9b42', 20, 0);
+      showToast(cache.message || 'Secret snack cache!', 3000);
       updateHud();
     }
+  }
+
+  function conditionMet(condition) {
+    return window.HeistContent?.evaluateCondition(condition, runState) ?? true;
+  }
+
+  function goalRequirementsMet() {
+    if (!activeLevel) return false;
+    const requiredReady = REQUIRED_LOOT <= 0 || (runState.counters.required || 0) >= REQUIRED_LOOT;
+    return requiredReady && conditionMet(activeLevel.goal?.completeWhen);
+  }
+
+  function updateTriggers() {
+    for (const trigger of triggers) {
+      if (trigger.fired) continue;
+      const size = trigger.size || { width: 120, height: 180 };
+      const zone = { x: trigger.x, y: trigger.y, w: size.width, h: size.height };
+      const overlaps = trigger.activation === 'condition' || overlap(player, zone);
+      const pounceReady = trigger.activation !== 'pounce' || player.dashTime > 0;
+      if (!overlaps || !pounceReady || !conditionMet(trigger.when)) continue;
+      trigger.fired = trigger.once !== false;
+      for (const action of trigger.actions || []) {
+        if (action.type === 'setFlag') runState.flags[action.key] = action.value ?? true;
+        if (action.type === 'incrementCounter') runState.counters[action.key] = (runState.counters[action.key] || 0) + (action.amount || 1);
+        if (action.type === 'objective') game.objective = action.text;
+        if (action.type === 'toast') showToast(action.text, action.duration || 2400);
+        if (action.type === 'unlockGhost') {
+          game.ghostUnlocked = true;
+          runState.flags.ghostRescued = true;
+          chord([440, 554, 659]);
+        }
+      }
+      updateHud();
+    }
+  }
+
+  function updateTutorial() {
+    const tutorial = activeLevel?.tutorial || [];
+    const step = tutorial[game.tutorialIndex];
+    if (!step) return;
+    if (!game.tutorialShown && conditionMet(step.startWhen)) {
+      game.tutorialShown = step.id;
+      showToast(step.prompt, step.duration || 4200);
+    }
+    if (game.tutorialShown === step.id && conditionMet(step.completeWhen)) {
+      game.tutorialIndex += 1;
+      game.tutorialShown = null;
+    }
+  }
+
+  function awardLevelRewards() {
+    const badges = ['adventure'];
+    const conditions = activeLevel.badgeConditions || {};
+    if (conditionMet(conditions.secret)) badges.push('secret');
+    if (conditionMet(conditions.challenge)) badges.push('challenge');
+    game.earnedBadges = badges;
+    try {
+      const storageKey = 'nine-lives-content-progress-v1';
+      const progress = JSON.parse(localStorage.getItem(storageKey) || '{"levels":{}}');
+      const previous = progress.levels[activeLevel.id]?.badges || [];
+      progress.levels[activeLevel.id] = {
+        badges: Array.from(new Set([...previous, ...badges])),
+        bestLoot: Math.max(progress.levels[activeLevel.id]?.bestLoot || 0, game.loot)
+      };
+      localStorage.setItem(storageKey, JSON.stringify(progress));
+    } catch (_error) {
+      // Local progress is optional; private browsing can deny storage.
+    }
+  }
+
+  function applyLevelContent(level) {
+    activeLevel = level;
+    WORLD_W = level.bounds.width;
+    REQUIRED_LOOT = level.requiredLoot;
+    platforms = level.legacy.platforms;
+    hazardsTemplate = level.legacy.hazards;
+    lootTemplate = level.legacy.loot;
+    enemyTemplate = level.legacy.enemies;
+    checkpoints = level.legacy.checkpoints;
+    decor = level.legacy.decor;
+    caches = level.legacy.caches;
+    triggers = level.legacy.triggers;
+    document.title = `${level.name} — Nine Lives, One Heist`;
   }
 
   function hurtPlayer(message) {
@@ -454,10 +600,12 @@
     blip(90, 0.18, 'sawtooth', 0.04);
     updateHud();
     if (player.lives <= 0) {
-      finishGame(false);
-      return;
+      player.lives = 3;
+      runState.counters.rescues += 1;
+      showToast('Ghost rescue! Three fresh hearts.', 2200);
+    } else {
+      showToast(message);
     }
-    showToast(message);
     player.x = game.checkpoint.x;
     player.y = game.checkpoint.y;
     player.vx = 0;
@@ -465,7 +613,9 @@
   }
 
   function updateHud() {
-    ui.loot.textContent = `${game.loot} / ${game.totalLoot || lootTemplate.length}`;
+    const collected = REQUIRED_LOOT > 0 ? (runState.counters.required || 0) : game.loot;
+    const total = REQUIRED_LOOT > 0 ? REQUIRED_LOOT : (game.totalLoot || lootTemplate.length);
+    ui.loot.textContent = `${collected} / ${total}`;
     ui.lives.textContent = Array.from({ length: 3 }, (_, i) => i < (player?.lives ?? 3) ? '♥' : '♡').join(' ');
     ui.objective.textContent = game.objective;
   }
@@ -519,6 +669,7 @@
     drawParticles();
     drawVault();
     ctx.restore();
+    drawSuspicion();
   }
 
   function drawBackground(shakeX, shakeY) {
@@ -900,9 +1051,16 @@
   }
 
   function drawVault() {
-    const x = 7190;
-    ctx.save(); ctx.translate(x, 590);
-    const open = game.loot >= REQUIRED_LOOT;
+    const exit = activeLevel?.exit;
+    if (!exit) return;
+    const x = exit.position.x + (exit.size?.width || 120) / 2;
+    const floorY = exit.position.y + (exit.size?.height || 160);
+    if (exit.variant !== 'vault') {
+      drawGateExit(x, floorY, goalRequirementsMet());
+      return;
+    }
+    ctx.save(); ctx.translate(x, floorY);
+    const open = goalRequirementsMet();
     const glow = ctx.createRadialGradient(0, -88, 5, 0, -88, 115);
     glow.addColorStop(0, open ? 'rgba(200,245,96,.35)' : 'rgba(255,155,66,.2)'); glow.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = glow; ctx.fillRect(-120, -210, 240, 210);
@@ -931,6 +1089,41 @@
     ctx.restore();
   }
 
+  function drawGateExit(x, floorY, open) {
+    ctx.save();
+    ctx.translate(x, floorY);
+    const glow = ctx.createRadialGradient(0, -80, 6, 0, -80, 105);
+    glow.addColorStop(0, open ? 'rgba(200,245,96,.28)' : 'rgba(255,176,87,.2)');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow; ctx.fillRect(-115, -205, 230, 205);
+    ctx.strokeStyle = open ? '#c8f560' : '#8c7699';
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(-58, 0); ctx.lineTo(-58, -115); ctx.arc(0, -115, 58, Math.PI, 0); ctx.lineTo(58, 0); ctx.stroke();
+    ctx.lineWidth = 5;
+    for (let bar = -36; bar <= 36; bar += 24) {
+      ctx.beginPath(); ctx.moveTo(bar, -4); ctx.lineTo(bar, -130); ctx.stroke();
+    }
+    if (open) {
+      ctx.fillStyle = 'rgba(200,245,96,.2)';
+      ctx.fillRect(-52, -112, 104, 112);
+    }
+    ctx.restore();
+  }
+
+  function drawSuspicion() {
+    if (game.suspicion <= 0 || game.mode !== 'playing') return;
+    const width = 220;
+    const x = (VIEW_W - width) / 2;
+    const y = 78;
+    ctx.fillStyle = 'rgba(12,7,22,.84)';
+    roundedRect(ctx, x - 10, y - 10, width + 20, 32, 8); ctx.fill();
+    ctx.fillStyle = '#ffb052';
+    roundedRect(ctx, x, y, width * game.suspicion, 12, 6); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.5)';
+    ctx.strokeRect(x, y, width, 12);
+  }
+
   function loop(now) {
     const dt = Math.min(.033, Math.max(.001, (now - game.lastTime) / 1000));
     game.lastTime = now;
@@ -946,6 +1139,7 @@
     };
     addEventListener('keydown', event => {
       if (game.mode === 'title' && ['Enter', 'Space'].includes(event.code)) { event.preventDefault(); beginGame(); return; }
+      if (['won', 'lost'].includes(game.mode) && ['Enter', 'Space'].includes(event.code)) { event.preventDefault(); continueCampaign(); return; }
       const action = codes[event.code];
       if (!action) return;
       event.preventDefault();
@@ -1078,7 +1272,8 @@
   }
 
   ui.start.addEventListener('click', beginGame);
-  ui.restart.addEventListener('click', beginGame);
+  ui.continue.addEventListener('click', continueCampaign);
+  ui.replay.addEventListener('click', beginGame);
   ui.sound.addEventListener('click', () => {
     game.sound = !game.sound;
     ui.sound.textContent = game.sound ? 'Sound on' : 'Sound off';
@@ -1087,10 +1282,34 @@
   });
   document.addEventListener('visibilitychange', () => { game.lastTime = performance.now(); clearInput(); });
 
+  async function loadSelectedContent() {
+    ui.start.disabled = true;
+    const label = ui.start.querySelector('span');
+    if (label) label.textContent = 'Opening the level book…';
+    try {
+      contentSystem = await window.HeistContent.ContentSystem.load('content/items.json');
+      const requested = new URLSearchParams(location.search).get('level');
+      const locations = contentSystem.getLocations();
+      const selected = requested
+        ? locations.find(item => item.id === requested || item.id.endsWith(`.${requested}`) || String(item.order) === requested)
+        : null;
+      const level = await contentSystem.loadLevel(selected?.id);
+      applyLevelContent(level);
+      resetGame();
+      ui.start.disabled = false;
+      if (label) label.textContent = `Play: ${level.name}`;
+    } catch (error) {
+      console.error(error);
+      if (label) label.textContent = 'Level data could not load';
+      ui.start.querySelector('small').textContent = 'Serve the game over HTTP, then reload';
+      ui.start.setAttribute('aria-label', error.message);
+    }
+  }
+
   loadAssets();
-  resetGame();
   bindControls();
   requestAnimationFrame(loop);
+  loadSelectedContent();
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));

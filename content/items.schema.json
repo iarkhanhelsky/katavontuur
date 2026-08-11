@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "items.schema.json",
+  "title": "Nine Lives global item registry",
+  "type": "object",
+  "required": ["schemaVersion", "gameId", "defaultLocationId", "replicaFile", "items"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "gameId": { "type": "string", "minLength": 1 },
+    "defaultLocationId": { "type": "string", "minLength": 1 },
+    "replicaFile": { "type": "string", "minLength": 1 },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["location", "quest", "reward", "object", "tutorial"] }
+        }
+      }
+    }
+  }
+}
